@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndustrialMonitor", "IndustrialMonitor\IndustrialMonitor.csproj", "{AB0CDFDB-01EA-4E0E-88C2-A08591617211}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndustrialMonitor.Modules.Dashboard", "IndustrialMonitor.Modules.Dashboard\IndustrialMonitor.Modules.Dashboard.csproj", "{514D680F-1A9A-4BA6-99DB-66EB4C0DD5AA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB0CDFDB-01EA-4E0E-88C2-A08591617211}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB0CDFDB-01EA-4E0E-88C2-A08591617211}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB0CDFDB-01EA-4E0E-88C2-A08591617211}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB0CDFDB-01EA-4E0E-88C2-A08591617211}.Release|Any CPU.Build.0 = Release|Any CPU
+		{514D680F-1A9A-4BA6-99DB-66EB4C0DD5AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{514D680F-1A9A-4BA6-99DB-66EB4C0DD5AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{514D680F-1A9A-4BA6-99DB-66EB4C0DD5AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{514D680F-1A9A-4BA6-99DB-66EB4C0DD5AA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {06E9BB90-C267-4B98-94C7-5E8F7E97ABD2}
+	EndGlobalSection
+EndGlobal
