@@ -4,18 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IndustrialMonitor.Modules.Dashboard
+namespace IndustrialMonitor.Modules.Monitor
 {
-    public partial class Dashboard : IModule
+    public class Monitor : IModule
     {
         public void OnInitialized(IContainerProvider containerProvider)
         {
-            
+
         }
 
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.RegisterForNavigation<DashboardView, DashboardViewModel>("DashboardView");
+            containerRegistry.RegisterForNavigation<IndustrialMonitor.Modules.Monitor.MonitorView>();
         }
     }
 }

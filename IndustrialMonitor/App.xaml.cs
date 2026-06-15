@@ -1,7 +1,10 @@
 ﻿using IndustrialMonitor.Modules.Dashboard;
+using IndustrialMonitor.Modules.Device;
+using IndustrialMonitor.Modules.Monitor;
 using System.Configuration;
 using System.Data;
 using System.Windows;
+using Monitor = IndustrialMonitor.Modules.Monitor.Monitor;
 
 namespace IndustrialMonitor
 {
@@ -26,6 +29,8 @@ namespace IndustrialMonitor
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
         {
             moduleCatalog.AddModule<Dashboard>();
+            moduleCatalog.AddModule<Device>();
+            moduleCatalog.AddModule<Monitor>();
             base.ConfigureModuleCatalog(moduleCatalog);
         }
 
