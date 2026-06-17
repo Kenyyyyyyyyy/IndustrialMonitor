@@ -51,17 +51,20 @@
 
         </Grid>
 
-        <ItemsControl Grid.Row="2" ItemsSource="{Binding }">
+        <ItemsControl Grid.Row="2" ItemsSource="{Binding ConnectList}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <UniformGrid Columns="5"></UniformGrid>
+                    <UniformGrid Columns="4"></UniformGrid>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
 
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <WrapPanel>
-                        <Button Content="{Binding MachineName}"></Button>
+                    <WrapPanel VerticalAlignment="Center">
+                        <Button Content="{Binding}" 
+                                Command="{Binding DataContext.OpenDetailCmd,
+                                RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                CommandParameter="{Binding}"></Button>
                     </WrapPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

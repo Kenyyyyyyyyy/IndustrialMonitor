@@ -1,0 +1,56 @@
+﻿<Window x:Class="IndustrialMonitor.Modules.Dashboard.DashboardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:IndustrialMonitor.Modules.Dashboard"
+        mc:Ignorable="d"
+        Title="DashboardWindow" Height="500" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="设备名称" Margin="10"></TextBlock>
+                <TextBlock Text="IPAddress" ></TextBlock>
+                <TextBlock Text="设备状态" Margin=" 10"></TextBlock>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="{Binding }" Margin="10"></TextBlock>
+                <TextBlock Text="{Binding }" ></TextBlock>
+                <TextBlock Text="{Binding }" Margin=" 10"></TextBlock>
+            </StackPanel>
+        </Grid>
+
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding TemperatureItems}">
+
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel>
+                        
+                    </StackPanel>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <WrapPanel>
+                        <TextBlock Text="{Binding ItemName}" Margin="3"></TextBlock>
+                        <TextBlock Text="{Binding ItemValue}" Margin="3"></TextBlock>
+                        <TextBlock Text="{Binding Unit}" Margin="3"></TextBlock>
+                    </WrapPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        
+    </Grid>
+</Window>

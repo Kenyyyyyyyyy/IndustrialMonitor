@@ -8,99 +8,30 @@ using System.Windows;
 
 namespace IndustrialMonitor.Modules.Dashboard
 {
-    public class DashboardViewModel : BindableBase , INavigationAware
+    public class DashboardViewModel : BindableBase, INavigationAware
     {
 
         private readonly ModBusTCP _modBusTCP = new();
-        private CancellationTokenSource? _cts;
         private bool _isCollecting = false;
+        private List<string> _connectList = [ "127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4" ];
+        public List<string> ConnectList { get; set; } = [];
+        private readonly Dictionary<string, ModBusTCP> _modbusClients = new();
+        DelegateCommand<string> OpenDetailCmd;
 
         public DashboardViewModel()
         {
-            
-            
-        }
-
-        public async Task TCPConnectAsync()
-        {
-            
-            try
+            OpenDetailCmd = new DelegateCommand<string>(str =>
             {
-                await _modBusTCP.ModbusTcpConnectAsync("127.0.0.1", 5020);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.InnerException?.Message ?? ex.Message);
-            }
-        }
+                
+            });
 
-
-        public async Task ReadregistersAsync()
-        {
-            if (_cts == null) return;
-
-            CancellationToken cancellationToken = _cts.Token;
-
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                try
-                {
-                    ushort[] registers = await _modBusTCP.ReadHoldingRegistersAsync(1, 0, 10);
-                    TodayOutput = registers[0];
-                    YieldRate = registers[1];
-                    AlarmCount = registers[2];
-                    DeviceStatus = registers[6];
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.InnerException?.Message ?? ex.Message);
-                }
-
-                await Task.Delay(1000, cancellationToken);
-            }
-
-            
 
         }
-
-        public async Task StartCollectAsync()
-        {
-            if (_isCollecting) return;
-
-            _isCollecting = true;
-            _cts = new CancellationTokenSource();
-
-            try
-            {
-                await TCPConnectAsync();
-                await ReadregistersAsync();
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch
-            {
-                StopCollectAsync();
-            }
-        }
-
-        public void StopCollectAsync()
-        {
-            if (!_isCollecting) return;
-
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _cts = null;
-
-
-            _isCollecting = false;
-        }
-
 
         #region INavigationAware
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            _ = StartCollectAsync();
+            _ = TCPConnectAsync();
         }
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
@@ -110,10 +41,68 @@ namespace IndustrialMonitor.Modules.Dashboard
 
         public void OnNavigatedFrom(NavigationContext navigationContext)
         {
-            StopCollectAsync();
+            NavigationParameters parameters = new NavigationParameters();
+            parameters.Add("modbusClients", _modbusClients);
         }
 
         #endregion
+
+        public async Task TCPConnectAsync()
+        {
+            _modbusClients.Clear();
+            
+
+            foreach (var ip in _connectList)
+            {
+                try
+                {
+                    await _modBusTCP.ModbusTcpConnectAsync(ip, 502);
+                    _modbusClients.Add(ip, _modBusTCP);
+                    ConnectList.Add(ip);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"无法连接到 {ip}: {ex.InnerException?.Message ?? ex.Message}");
+                }
+            }
+
+        }
+
+
+        
+
+        //public async Task StartCollectAsync()
+        //{
+            
+        //    _cts = new CancellationTokenSource();
+
+        //    try
+        //    {
+        //        await TCPConnectAsync();
+        //    }
+        //    catch (OperationCanceledException)
+        //    {
+        //    }
+        //    catch
+        //    {
+        //        StopCollectAsync();
+        //    }
+        //}
+
+        //public void StopCollectAsync()
+        //{
+        //    if (!_isCollecting) return;
+
+        //    _cts?.Cancel();
+        //    _cts?.Dispose();
+        //    _cts = null;
+
+
+        //    _isCollecting = false;
+        //}
+
+
+        
 
 
         #region allview
