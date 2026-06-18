@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -10,19 +11,26 @@ namespace IndustrialMonitor.Modules.Dashboard
 {
     public class DashboardViewModel : BindableBase, INavigationAware
     {
-
+        private IDialogService _dialogService;
         private readonly ModBusTCP _modBusTCP = new();
         private bool _isCollecting = false;
         private List<string> _connectList = [ "127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4" ];
         public List<string> ConnectList { get; set; } = [];
-        private readonly Dictionary<string, ModBusTCP> _modbusClients = new();
-        DelegateCommand<string> OpenDetailCmd;
+        private readonly Dictionary<string, TcpClient> _modbusClients = new();
+        public DelegateCommand<string> OpenDetailCmd { get; }
 
-        public DashboardViewModel()
+        TcpClient _tcpClient = new();
+
+        public DashboardViewModel(IDialogService dialogService)
         {
-            OpenDetailCmd = new DelegateCommand<string>(str =>
+            _dialogService = dialogService;
+
+            OpenDetailCmd = new DelegateCommand<string>(ip =>
             {
-                
+                DialogParameters para = [];
+                para.Add("tcpClients", _modbusClients[ip]);
+                para.Add("IpAddress",ip);
+                _dialogService.ShowDialog("DashboardWindow",para);
             });
 
 
@@ -56,8 +64,8 @@ namespace IndustrialMonitor.Modules.Dashboard
             {
                 try
                 {
-                    await _modBusTCP.ModbusTcpConnectAsync(ip, 502);
-                    _modbusClients.Add(ip, _modBusTCP);
+                    _tcpClient = await _modBusTCP.ModbusTcpConnectAsync(ip, 502);
+                    _modbusClients.Add(ip, _tcpClient);
                     ConnectList.Add(ip);
                 }
                 catch (Exception ex)
@@ -68,41 +76,6 @@ namespace IndustrialMonitor.Modules.Dashboard
 
         }
 
-
-        
-
-        //public async Task StartCollectAsync()
-        //{
-            
-        //    _cts = new CancellationTokenSource();
-
-        //    try
-        //    {
-        //        await TCPConnectAsync();
-        //    }
-        //    catch (OperationCanceledException)
-        //    {
-        //    }
-        //    catch
-        //    {
-        //        StopCollectAsync();
-        //    }
-        //}
-
-        //public void StopCollectAsync()
-        //{
-        //    if (!_isCollecting) return;
-
-        //    _cts?.Cancel();
-        //    _cts?.Dispose();
-        //    _cts = null;
-
-
-        //    _isCollecting = false;
-        //}
-
-
-        
 
 
         #region allview

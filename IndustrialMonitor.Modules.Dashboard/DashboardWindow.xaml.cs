@@ -17,7 +17,7 @@ namespace IndustrialMonitor.Modules.Dashboard
     /// <summary>
     /// DashboardWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class DashboardWindow : Window
+    public partial class DashboardWindow : UserControl
     {
         public DashboardWindow()
         {

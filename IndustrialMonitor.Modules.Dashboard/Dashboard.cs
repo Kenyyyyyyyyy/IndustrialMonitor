@@ -16,6 +16,8 @@ namespace IndustrialMonitor.Modules.Dashboard
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterForNavigation<DashboardView, DashboardViewModel>("DashboardView");
+
+            containerRegistry.RegisterDialog<DashboardWindow,DashboardWindowViewModel>("DashboardWindow");
         }
     }
 }
