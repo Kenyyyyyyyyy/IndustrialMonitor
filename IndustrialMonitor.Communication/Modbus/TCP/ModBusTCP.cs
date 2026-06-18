@@ -1,12 +1,5 @@
 ﻿using NModbus;
-using NModbus.Device;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IndustrialMonitor.Communication.Modbus.TCP
 {
@@ -27,9 +20,8 @@ namespace IndustrialMonitor.Communication.Modbus.TCP
 
             ModbusFactory factory = new ModbusFactory();
             IModbusMaster _master = factory.CreateMaster(tcpClient);
-
-            return await Task.Run(() => _master.ReadHoldingRegisters(slaveId, startAddress, numberOfPoints)); 
-
+            ushort[] registers = await Task.Run(() => _master.ReadHoldingRegisters(slaveId, startAddress, numberOfPoints));
+            return registers;
         }
 
     }

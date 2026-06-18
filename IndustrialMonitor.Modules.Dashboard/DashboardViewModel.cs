@@ -1,6 +1,7 @@
 ﻿using IndustrialMonitor.Communication.Modbus.TCP;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -12,10 +13,18 @@ namespace IndustrialMonitor.Modules.Dashboard
     public class DashboardViewModel : BindableBase, INavigationAware
     {
         private IDialogService _dialogService;
-        private readonly ModBusTCP _modBusTCP = new();
-        private bool _isCollecting = false;
-        private List<string> _connectList = [ "127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4" ];
-        public List<string> ConnectList { get; set; } = [];
+        private ModBusTCP _modBusTCP;
+        private List<string> _scanList = ["127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4"];
+
+        private ObservableCollection<string> _connectList;
+
+        public ObservableCollection<string> ConnectList
+        {
+            get => _connectList; 
+            set => SetProperty(ref _connectList, value);
+        }
+
+
         private readonly Dictionary<string, TcpClient> _modbusClients = new();
         public DelegateCommand<string> OpenDetailCmd { get; }
 
@@ -58,9 +67,10 @@ namespace IndustrialMonitor.Modules.Dashboard
         public async Task TCPConnectAsync()
         {
             _modbusClients.Clear();
-            
+            _modBusTCP = new ModBusTCP();
+            ConnectList = [];
 
-            foreach (var ip in _connectList)
+            foreach (var ip in _scanList)
             {
                 try
                 {

@@ -64,7 +64,8 @@
                         <Button Content="{Binding}" 
                                 Command="{Binding DataContext.OpenDetailCmd,
                                 RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
-                                CommandParameter="{Binding}"></Button>
+                                CommandParameter="{Binding}">
+                        </Button>
                     </WrapPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

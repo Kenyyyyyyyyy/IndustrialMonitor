@@ -16,20 +16,13 @@ namespace IndustrialMonitor.Modules.Dashboard
     {
         public string Title { get; } = "设备详情";
 
-        private string _deviceName;
-
-        
-
         private CancellationTokenSource? _cts;  
         bool isCollecting = false;
         DetailHelper detailHelper = new();
 
         public ObservableCollection<DeviceDetailModel> DeviceDetails { get; set; } = [];
-        //public ObservableCollection<DeviceDetailModel> TemperatureItems { get; set; } = [];
-        public ObservableCollection<DeviceDetailModel> ProcessItems { get; set; } = [];
-        public ObservableCollection<DeviceDetailModel> ProductionItems { get; set; } = [];
-        public ObservableCollection<DeviceDetailModel> RunningItems { get; set; } = [];
-
+        
+        
         private ObservableCollection<DeviceDetailModel> _temperatureItems;
 
         public ObservableCollection<DeviceDetailModel> TemperatureItems
@@ -38,6 +31,29 @@ namespace IndustrialMonitor.Modules.Dashboard
             set => SetProperty(ref _temperatureItems, value);
         }
 
+        private ObservableCollection<DeviceDetailModel> _processItems;
+
+        public ObservableCollection<DeviceDetailModel> ProcessItems
+        {
+            get { return _processItems; }
+            set => SetProperty(ref _processItems, value);
+        }
+
+        private ObservableCollection<DeviceDetailModel> _productionItems;
+
+        public ObservableCollection<DeviceDetailModel> ProductionItems
+        {
+            get { return _productionItems; }
+            set => SetProperty(ref _productionItems, value);
+        }
+
+        private ObservableCollection<DeviceDetailModel> _runningItems;
+
+        public ObservableCollection<DeviceDetailModel> RunningItems
+        {
+            get { return _runningItems; }
+            set => SetProperty(ref _runningItems, value);
+        }
 
 
         TcpClient _tcpClient = new();
@@ -118,27 +134,27 @@ namespace IndustrialMonitor.Modules.Dashboard
         }
 
 
-
+        private string _deviceName;
         public string DeviceName
         {
-            get { return _deviceName; }
-            set { _deviceName = value; }
+            get => _deviceName; 
+            set => SetProperty(ref _deviceName, value);
         }
 
         private string _ipAddress;
 
         public string IpAddress
         {
-            get { return _ipAddress; }
-            set { _ipAddress = value; }
+            get => _ipAddress;
+            set => SetProperty(ref _ipAddress, value);
         }
 
         private string _deviceStatus;
 
         public string DeviceStatus
         {
-            get { return _deviceStatus; }
-            set { _deviceStatus = value; }
+            get => _deviceStatus;
+            set => SetProperty(ref _deviceStatus, value);
         }
     }
 }
