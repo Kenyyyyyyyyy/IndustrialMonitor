@@ -1,4 +1,6 @@
-﻿using System;
+﻿using IndustrialMonitor.Communication.IServices;
+using IndustrialMonitor.Communication.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +20,8 @@ namespace IndustrialMonitor.Modules.Dashboard
             containerRegistry.RegisterForNavigation<DashboardView, DashboardViewModel>("DashboardView");
 
             containerRegistry.RegisterDialog<DashboardWindow,DashboardWindowViewModel>("DashboardWindow");
+
+            containerRegistry.RegisterSingleton<IDeviceCommunicationService,DeviceCommunicationService>();
         }
     }
 }

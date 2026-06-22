@@ -1,4 +1,4 @@
-﻿using IndustrialMonitor.Core.Models;
+﻿using IndustrialMonitor.Core.DeviceDetailModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

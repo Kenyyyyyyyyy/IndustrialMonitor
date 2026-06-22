@@ -1,4 +1,5 @@
-﻿using IndustrialMonitor.Communication.Modbus.TCP;
+﻿using IndustrialMonitor.Communication.IServices;
+using IndustrialMonitor.Core.DeviceDetailModels;
 using IndustrialMonitor.Core.Models;
 using Prism.Navigation.Regions;
 using System;
@@ -16,10 +17,10 @@ namespace IndustrialMonitor.Modules.Dashboard
     {
         public string Title { get; } = "设备详情";
 
-        private CancellationTokenSource? _cts;  
+        private CancellationTokenSource? _cts;
         bool isCollecting = false;
         DetailHelper detailHelper = new();
-
+        
 
         #region ObservableCollection<DeviceDetailModel>
 
@@ -60,9 +61,15 @@ namespace IndustrialMonitor.Modules.Dashboard
 
         #endregion
 
+        private readonly IDeviceCommunicationService _deviceCommunicationService;
 
-        TcpClient _tcpClient = new();
-        private readonly ModBusTCP _modBusTCP = new();
+        public DashboardWindowViewModel(IDeviceCommunicationService deviceCommunicationService)
+        {
+            _deviceCommunicationService = deviceCommunicationService;
+        }
+
+
+        
 
         public DialogCloseListener RequestClose { get; }
 
@@ -80,13 +87,9 @@ namespace IndustrialMonitor.Modules.Dashboard
         {
             _cts = new CancellationTokenSource();
 
-            _tcpClient = parameters.GetValue<TcpClient>("tcpClients");
-
             IpAddress = parameters.GetValue<string>("IpAddress");
-            DeviceName = parameters.GetValue<string>("IpAddress");
-
             detailHelper.InitDeviceDetailItems();
-            
+           
             _ = StartCollectAsync();
             
         }
@@ -103,7 +106,7 @@ namespace IndustrialMonitor.Modules.Dashboard
             {
                 try
                 {
-                    detailHelper.UpdateDeviceDetails(await _modBusTCP.ReadHoldingRegistersAsync(1, 0, 30, _tcpClient));
+                    detailHelper.UpdateDeviceDetails(await _deviceCommunicationService.ReadHoldingRegistersAsync(IpAddress,1,0,30));
 
                     DeviceDetails = detailHelper.DeviceDetails;
                     TemperatureItems = detailHelper.TemperatureItems;

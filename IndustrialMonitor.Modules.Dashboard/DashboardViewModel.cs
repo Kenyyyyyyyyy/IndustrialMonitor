@@ -1,4 +1,5 @@
-﻿using IndustrialMonitor.Communication.Modbus.TCP;
+﻿using IndustrialMonitor.Communication.IServices;
+using IndustrialMonitor.Communication.Services;
 using IndustrialMonitor.Core.Models;
 using System;
 using System.Collections.Generic;
@@ -13,38 +14,27 @@ namespace IndustrialMonitor.Modules.Dashboard
 {
     public class DashboardViewModel : BindableBase, INavigationAware
     {
-        private IDialogService _dialogService;
-
-        private List<string> _scanList = ["127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4"];
-        
-        public DelegateCommand<TcpResultModel> OpenDetailCmd { get; }
+        private readonly IDialogService _dialogService;
+        private readonly IDeviceCommunicationService _deviceCommunicationService;
+        public DelegateCommand<string> OpenDetailCmd { get; }
 
 
 
-        public DashboardViewModel(IDialogService dialogService)
+        public DashboardViewModel(IDialogService dialogService, IDeviceCommunicationService deviceCommunicationService)
         {
             _dialogService = dialogService;
+            _deviceCommunicationService = deviceCommunicationService;
 
-            OpenDetailCmd = new DelegateCommand<TcpResultModel>(TcpResult =>
+            OpenDetailCmd = new DelegateCommand<string>(ipAddress =>
             {
-            if (TcpResult == null || TcpResult.IsConnected == false || TcpResult.TcpClient == null) return;
-
-                DialogParameters para = [];
-                para.Add("tcpClients", TcpResult.TcpClient);
-                para.Add("IpAddress", TcpResult.IpAddress);
-
-
-
-                _dialogService.ShowDialog("DashboardWindow", para);
+                DialogParameters keyValuePairs = new(){{ "IpAddress", ipAddress }};
+                _dialogService.ShowDialog("DashboardWindow", keyValuePairs);
             });
-
-
         }
 
         public async Task StartConnectAsync()
         {
-            TcpScanFunc tcpScanFunc = new();
-            TcpResult = await tcpScanFunc.TCPConnect(_scanList);
+            DeviceConnectionResult = await _deviceCommunicationService.ScanipList(_devicepairs);
         }
 
         #region INavigationAware
@@ -64,7 +54,6 @@ namespace IndustrialMonitor.Modules.Dashboard
         }
 
         #endregion
-
 
 
 
@@ -104,14 +93,29 @@ namespace IndustrialMonitor.Modules.Dashboard
 
         
 
-        private ObservableCollection<TcpResultModel> _tcpResults;
+        private ObservableCollection<DeviceConnectionResult> _deviceConnectionResult;
 
-        public ObservableCollection<TcpResultModel> TcpResult
+        public ObservableCollection<DeviceConnectionResult> DeviceConnectionResult
         {
-            get => _tcpResults;
-            set => SetProperty(ref _tcpResults, value);
+            get => _deviceConnectionResult;
+            set => SetProperty(ref _deviceConnectionResult, value);
         }
 
+        //private List<string> _scanList = ["127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4"];
+
+        //public List<string> ScanList
+        //{
+        //    get => _scanList;
+        //    set => SetProperty(ref _scanList, value);
+        //}
+
+        private readonly Dictionary<string, int> _devicepairs = new Dictionary<string, int>
+        {
+            {"127.0.0.1",502 },
+            {"127.0.0.2",502 },
+            {"127.0.0.3",502 },
+            {"127.0.0.4",502 }
+        };
 
         #endregion
     }

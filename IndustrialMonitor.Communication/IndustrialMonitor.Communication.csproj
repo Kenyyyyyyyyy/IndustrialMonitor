@@ -7,15 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Modbus\RTU\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="NModbus" Version="3.0.83" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\IndustrialMonitor.Core\IndustrialMonitor.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\TCP\" />
   </ItemGroup>
 
 </Project>
