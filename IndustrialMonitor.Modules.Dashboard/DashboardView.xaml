@@ -51,7 +51,7 @@
 
         </Grid>
 
-        <ItemsControl Grid.Row="2" ItemsSource="{Binding ConnectList}">
+        <ItemsControl Grid.Row="2" ItemsSource="{Binding TcpResult}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Columns="4"></UniformGrid>
@@ -61,11 +61,13 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <WrapPanel VerticalAlignment="Center">
-                        <Button Content="{Binding}" 
+                        <Button Content="{Binding IpAddress}" 
                                 Command="{Binding DataContext.OpenDetailCmd,
                                 RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
                                 CommandParameter="{Binding}">
                         </Button>
+                        <TextBlock Text="{Binding StatusText}"/>
+                        
                     </WrapPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

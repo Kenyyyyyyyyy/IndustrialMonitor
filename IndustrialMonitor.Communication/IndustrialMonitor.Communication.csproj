@@ -14,4 +14,8 @@
     <PackageReference Include="NModbus" Version="3.0.83" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\IndustrialMonitor.Core\IndustrialMonitor.Core.csproj" />
+  </ItemGroup>
+
 </Project>

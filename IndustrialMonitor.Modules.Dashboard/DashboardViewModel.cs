@@ -1,4 +1,5 @@
 ﻿using IndustrialMonitor.Communication.Modbus.TCP;
+using IndustrialMonitor.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,42 +14,43 @@ namespace IndustrialMonitor.Modules.Dashboard
     public class DashboardViewModel : BindableBase, INavigationAware
     {
         private IDialogService _dialogService;
-        private ModBusTCP _modBusTCP;
+
         private List<string> _scanList = ["127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4"];
-
-        private ObservableCollection<string> _connectList;
-
-        public ObservableCollection<string> ConnectList
-        {
-            get => _connectList; 
-            set => SetProperty(ref _connectList, value);
-        }
+        
+        public DelegateCommand<TcpResultModel> OpenDetailCmd { get; }
 
 
-        private readonly Dictionary<string, TcpClient> _modbusClients = new();
-        public DelegateCommand<string> OpenDetailCmd { get; }
-
-        TcpClient _tcpClient = new();
 
         public DashboardViewModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
 
-            OpenDetailCmd = new DelegateCommand<string>(ip =>
+            OpenDetailCmd = new DelegateCommand<TcpResultModel>(TcpResult =>
             {
+            if (TcpResult == null || TcpResult.IsConnected == false || TcpResult.TcpClient == null) return;
+
                 DialogParameters para = [];
-                para.Add("tcpClients", _modbusClients[ip]);
-                para.Add("IpAddress",ip);
-                _dialogService.ShowDialog("DashboardWindow",para);
+                para.Add("tcpClients", TcpResult.TcpClient);
+                para.Add("IpAddress", TcpResult.IpAddress);
+
+
+
+                _dialogService.ShowDialog("DashboardWindow", para);
             });
 
 
         }
 
+        public async Task StartConnectAsync()
+        {
+            TcpScanFunc tcpScanFunc = new();
+            TcpResult = await tcpScanFunc.TCPConnect(_scanList);
+        }
+
         #region INavigationAware
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            _ = TCPConnectAsync();
+            _ = StartConnectAsync();
         }
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
@@ -58,33 +60,12 @@ namespace IndustrialMonitor.Modules.Dashboard
 
         public void OnNavigatedFrom(NavigationContext navigationContext)
         {
-            NavigationParameters parameters = new NavigationParameters();
-            parameters.Add("modbusClients", _modbusClients);
+            
         }
 
         #endregion
 
-        public async Task TCPConnectAsync()
-        {
-            _modbusClients.Clear();
-            _modBusTCP = new ModBusTCP();
-            ConnectList = [];
 
-            foreach (var ip in _scanList)
-            {
-                try
-                {
-                    _tcpClient = await _modBusTCP.ModbusTcpConnectAsync(ip, 502);
-                    _modbusClients.Add(ip, _tcpClient);
-                    ConnectList.Add(ip);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"无法连接到 {ip}: {ex.InnerException?.Message ?? ex.Message}");
-                }
-            }
-
-        }
 
 
 
@@ -121,6 +102,15 @@ namespace IndustrialMonitor.Modules.Dashboard
             set => SetProperty(ref _deviceStatus, value);
         }
 
+        
+
+        private ObservableCollection<TcpResultModel> _tcpResults;
+
+        public ObservableCollection<TcpResultModel> TcpResult
+        {
+            get => _tcpResults;
+            set => SetProperty(ref _tcpResults, value);
+        }
 
 
         #endregion

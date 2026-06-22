@@ -20,6 +20,9 @@ namespace IndustrialMonitor.Modules.Dashboard
         bool isCollecting = false;
         DetailHelper detailHelper = new();
 
+
+        #region ObservableCollection<DeviceDetailModel>
+
         public ObservableCollection<DeviceDetailModel> DeviceDetails { get; set; } = [];
         
         
@@ -55,6 +58,8 @@ namespace IndustrialMonitor.Modules.Dashboard
             set => SetProperty(ref _runningItems, value);
         }
 
+        #endregion
+
 
         TcpClient _tcpClient = new();
         private readonly ModBusTCP _modBusTCP = new();
@@ -76,8 +81,10 @@ namespace IndustrialMonitor.Modules.Dashboard
             _cts = new CancellationTokenSource();
 
             _tcpClient = parameters.GetValue<TcpClient>("tcpClients");
+
             IpAddress = parameters.GetValue<string>("IpAddress");
             DeviceName = parameters.GetValue<string>("IpAddress");
+
             detailHelper.InitDeviceDetailItems();
             
             _ = StartCollectAsync();
