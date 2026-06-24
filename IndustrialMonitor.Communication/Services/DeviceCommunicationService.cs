@@ -33,7 +33,6 @@ namespace IndustrialMonitor.Communication.Services
             };
 
             return true;
-            
         }
 
         public Task DisconnectAsync(string ipAddress)
@@ -48,8 +47,6 @@ namespace IndustrialMonitor.Communication.Services
             return Task.CompletedTask;
         }
 
-        
-       
 
         public bool IsConnected(string ipAddress)
         {
@@ -73,38 +70,7 @@ namespace IndustrialMonitor.Communication.Services
 
         public async Task<ObservableCollection<DeviceConnectionResult>> ScanipList(Dictionary<string, int> IpPortPairs)
         {
-            //ObservableCollection <DeviceConnectionResult> DeviceConnectionResults = [];
-
-
-            //foreach (var pair in IpPortPairs)
-            //{
-            //    try
-            //    {
-            //        await ConnectAsync(pair.Key, pair.Value);
-            //        DeviceConnectionResults.Add(new DeviceConnectionResult
-            //        {
-            //            IpAddress = pair.Key,
-            //            Port = pair.Value,
-            //            IsConnected = true,
-            //            Status = "Connected"
-            //        });
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        DeviceConnectionResults.Add(new DeviceConnectionResult
-            //        {
-            //            IpAddress = pair.Key,
-            //            Port = pair.Value,
-            //            IsConnected = false,
-            //            Status = "Error",
-            //            ErrorMessage = ex.Message
-            //        });
-
-            //    }
-            //}
-
-            //return DeviceConnectionResults;
-
+            
             var tasks = IpPortPairs.Select(async pair =>
             {
                 try

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IndustrialMonitor.Core.DeviceDetailModels
+namespace IndustrialMonitor.Core.Models
 {
     public class DeviceDetailModel : INotifyPropertyChanged
     {

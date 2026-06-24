@@ -1,5 +1,4 @@
 ﻿using IndustrialMonitor.Communication.IServices;
-using IndustrialMonitor.Core.DeviceDetailModels;
 using IndustrialMonitor.Core.Models;
 using Prism.Navigation.Regions;
 using System;
@@ -11,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace IndustrialMonitor.Modules.Dashboard
+namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 {
     public class DashboardWindowViewModel : BindableBase, IDialogAware
     {

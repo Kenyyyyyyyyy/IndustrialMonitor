@@ -1,5 +1,6 @@
 ﻿using IndustrialMonitor.Communication.IServices;
 using IndustrialMonitor.Communication.Services;
+using IndustrialMonitor.Modules.Dashboard.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

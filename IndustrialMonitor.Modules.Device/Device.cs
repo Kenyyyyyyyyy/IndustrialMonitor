@@ -1,4 +1,6 @@
-﻿using System;
+﻿using IndustrialMonitor.Modules.Device.ViewModels;
+using IndustrialMonitor.Modules.Device.Views;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +17,8 @@ namespace IndustrialMonitor.Modules.Device
 
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.RegisterForNavigation<DeviceView>();
+            containerRegistry.RegisterForNavigation<DeviceView,DeviceViewModel>();
+            containerRegistry.RegisterDialog<DeviceAddWindow>();
         }
     }
 }
