@@ -18,7 +18,7 @@ namespace IndustrialMonitor.Modules.Device
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterForNavigation<DeviceView,DeviceViewModel>();
-            containerRegistry.RegisterDialog<DeviceAddWindow>();
+            containerRegistry.RegisterDialog<DeviceAddWindow,DeviceAddWindowViewModel>();
         }
     }
 }

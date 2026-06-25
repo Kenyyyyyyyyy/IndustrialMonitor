@@ -18,7 +18,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         public DelegateCommand LoadDeviceCmd { get; }
         public DelegateCommand OpenAddCmd { get; }
         public DelegateCommand<DeviceConfigModel> DeleteDeviceCmd{ get; }
-        public DelegateCommand<DeviceConfigModel> AddDeviceCmd { get; }
+        
 
         public DeviceViewModel(IDialogService dialogService)
         {
@@ -26,8 +26,13 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
             LoadDeviceCmd = new(async () => await LoadDevice());
             DeleteDeviceCmd = new(async deviceConfigModel => await DeleteDevice(deviceConfigModel));
-            AddDeviceCmd = new(async deviceConfigModel => await AddDevice(deviceConfigModel));
-            OpenAddCmd = new(() => _dialogService.ShowDialog("DeviceAddWindow"));
+
+            
+            OpenAddCmd = new(() => {
+
+                DialogParameters keyValuePairs = new() { { "DeviceObservableCollection", DeviceObservableCollection } };
+                _dialogService.ShowDialog("DeviceAddWindow",keyValuePairs);
+            });
         }
 
         private ObservableCollection<DeviceConfigModel> _deviceObservableCollection;
@@ -50,20 +55,10 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
             await _deviceStorageService.SaveDeviceAsJsonAsync(DeviceObservableCollection);
         }
 
-        public async Task AddDevice(DeviceConfigModel deviceConfigModel)
-        {
-            DeviceObservableCollection.Add(deviceConfigModel);
-            await _deviceStorageService.SaveDeviceAsJsonAsync(DeviceObservableCollection);
-        }
+        
 
 
-        private DeviceConfigModel _device = new();
-
-        public DeviceConfigModel Device
-        {
-            get => _device;
-            set => SetProperty(ref _device, value);
-        }
+        
 
         #region INavigationAware
         public void OnNavigatedTo(NavigationContext navigationContext)
@@ -79,7 +74,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
         public void OnNavigatedFrom(NavigationContext navigationContext)
         {
-            throw new NotImplementedException();
+            
         }
 
         #endregion

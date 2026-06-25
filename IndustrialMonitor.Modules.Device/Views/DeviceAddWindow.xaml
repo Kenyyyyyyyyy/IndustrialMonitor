@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:IndustrialMonitor.Modules.Device.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="300" d:DesignWidth="250">
     <Grid>
         <StackPanel>
             <WrapPanel Margin="5">
@@ -39,7 +39,7 @@
                          UpdateSourceTrigger=PropertyChanged}"></TextBox>
             </WrapPanel>
 
-            <Button Content="添加" Command="{Binding AddDeviceCmd}" Width="100"></Button>
+            <Button Content="添加" Command="{Binding AddDeviceCmd}" Width="100" HorizontalAlignment="Center" Margin="10"></Button>
         </StackPanel>
     </Grid>
 </UserControl>
