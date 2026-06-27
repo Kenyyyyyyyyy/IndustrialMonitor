@@ -7,6 +7,8 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace IndustrialMonitor.Modules.Device.ViewModels
 {
@@ -25,11 +27,11 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
         public async Task AddDevice()
         {
-            
-            DeviceObservableCollection.Add(Device);
-            await _deviceStorageService.SaveDeviceAsJsonAsync(DeviceObservableCollection);
+
+            DeviceConfigModels.Add(Device);
+            await _deviceStorageService.SaveDeviceAsJsonAsync(DeviceConfigModels);
             Device = new();
-            
+            RequestClose.Invoke(ButtonResult.OK);
         }
 
         #region IDialogAware
@@ -45,18 +47,18 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            DeviceObservableCollection = parameters.GetValue<ObservableCollection<DeviceConfigModel>>("DeviceObservableCollection");
+            DeviceConfigModels = parameters.GetValue<List<DeviceConfigModel>>("DeviceConfigModels");
         }
 
         #endregion
 
 
 
-        private ObservableCollection<DeviceConfigModel> _deviceObservableCollection;
-        public ObservableCollection<DeviceConfigModel> DeviceObservableCollection
+        private List<DeviceConfigModel> _deviceConfigModels;
+        public List<DeviceConfigModel> DeviceConfigModels
         {
-            get => _deviceObservableCollection;
-            set => SetProperty(ref _deviceObservableCollection, value);
+            get => _deviceConfigModels;
+            set => SetProperty(ref _deviceConfigModels, value);
         }
 
         private DeviceConfigModel _device = new();

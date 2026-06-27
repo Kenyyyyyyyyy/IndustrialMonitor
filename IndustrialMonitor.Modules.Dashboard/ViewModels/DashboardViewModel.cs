@@ -32,15 +32,12 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             });
         }
 
-        public async Task StartConnectAsync()
-        {
-            DeviceConnectionResult = await _deviceCommunicationService.ScanipList(_devicepairs);
-        }
+        
 
         #region INavigationAware
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            _ = StartConnectAsync();
+            
         }
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
@@ -90,32 +87,6 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             get => _deviceStatus;
             set => SetProperty(ref _deviceStatus, value);
         }
-
-        
-
-        private ObservableCollection<DeviceConnectionResult> _deviceConnectionResult;
-
-        public ObservableCollection<DeviceConnectionResult> DeviceConnectionResult
-        {
-            get => _deviceConnectionResult;
-            set => SetProperty(ref _deviceConnectionResult, value);
-        }
-
-        //private List<string> _scanList = ["127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4"];
-
-        //public List<string> ScanList
-        //{
-        //    get => _scanList;
-        //    set => SetProperty(ref _scanList, value);
-        //}
-
-        private readonly Dictionary<string, int> _devicepairs = new Dictionary<string, int>
-        {
-            {"127.0.0.1",502 },
-            {"127.0.0.2",502 },
-            {"127.0.0.3",502 },
-            {"127.0.0.4",502 }
-        };
 
         #endregion
     }

@@ -10,14 +10,15 @@ namespace IndustrialMonitor.Communication.IServices
 {
     public interface IDeviceCommunicationService
     {
-        Task<bool> ConnectAsync(string ipAddress, int port);
-        Task DisconnectAsync(string ipAddress);
+        public Task<DeviceConnectionResult> ConnectAsync(DeviceConfigModel deviceConfig);
+
+        public DeviceConnectionResult DisconnectAsync(DeviceConfigModel deviceConfig);
 
         Task<ushort[]> ReadHoldingRegistersAsync(string ipAddress,byte slaveId,ushort startAddress,ushort numberOfPoints);
 
         bool IsConnected(string ipAddress);
 
-        Task<ObservableCollection<DeviceConnectionResult>> ScanipList(Dictionary<string, int> IpPortPairs);
+        Task<ObservableCollection<DeviceConnectionResult>> ScanipList(ObservableCollection<DeviceConfigModel> deviceConfigCollections);
 
     }
 }

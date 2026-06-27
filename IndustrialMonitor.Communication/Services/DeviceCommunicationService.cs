@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,35 +17,92 @@ namespace IndustrialMonitor.Communication.Services
         private readonly Dictionary<string, ModbusConnectionModel> _connections = [];
 
 
-        public async Task<bool> ConnectAsync(string ipAddress, int port)
+        public async Task<DeviceConnectionResult> ConnectAsync(DeviceConfigModel deviceConfig)
         {
-            if (_connections.ContainsKey(ipAddress)) return true;
+            if (_connections.ContainsKey(deviceConfig.IpAddress))
+            {
+                return new DeviceConnectionResult
+                {
+                    IpAddress = deviceConfig.IpAddress,
+                    Port = deviceConfig.Port,
+                    SlaveId = deviceConfig.SlaveId,
+                    StartAddress = deviceConfig.StartAddress,
+                    NumberOfPoints = deviceConfig.NumberOfPoints,
+
+                    IsConnected = true,
+                    Status = "已连接",
+                    ErrorMessage = null
+                };
+            }
 
             TcpClient _tcpClient = new();
-            await _tcpClient.ConnectAsync(ipAddress, port);
+
+            try
+            {
+                await _tcpClient.ConnectAsync(deviceConfig.IpAddress, deviceConfig.Port);
+            }
+            catch (Exception ex)
+            {
+                return new DeviceConnectionResult
+                {
+                    IpAddress = deviceConfig.IpAddress,
+                    Port = deviceConfig.Port,
+                    SlaveId = deviceConfig.SlaveId,
+                    StartAddress = deviceConfig.StartAddress,
+                    NumberOfPoints = deviceConfig.NumberOfPoints,
+
+                    IsConnected = false,
+                    Status = "连接失败",
+                    ErrorMessage = ex.Message
+                };
+            }
+
+            
             ModbusFactory factory = new();
 
-            _connections[ipAddress] = new ModbusConnectionModel
+            _connections[deviceConfig.IpAddress] = new ModbusConnectionModel
             {
-                IpAddress = ipAddress,
+                IpAddress = deviceConfig.IpAddress,
                 tcpClient = _tcpClient,
                 modbusMaster = factory.CreateMaster(_tcpClient),
                 IsConnected = true
             };
 
-            return true;
+            return new DeviceConnectionResult
+            {
+                IpAddress = deviceConfig.IpAddress,
+                Port = deviceConfig.Port,
+                SlaveId = deviceConfig.SlaveId,
+                StartAddress = deviceConfig.StartAddress,
+                NumberOfPoints = deviceConfig.NumberOfPoints,
+
+                IsConnected = true,
+                Status = "已连接",
+                ErrorMessage = null
+            }; 
         }
 
-        public Task DisconnectAsync(string ipAddress)
+        public DeviceConnectionResult DisconnectAsync(DeviceConfigModel deviceConfig)
         {
-            if(_connections.TryGetValue(ipAddress,out var connection))
+            if(_connections.TryGetValue(deviceConfig.IpAddress, out var connection))
             {
                 connection.modbusMaster.Dispose();
                 connection.tcpClient.Close();
                 connection.tcpClient.Dispose();
-                _connections.Remove(ipAddress);
+                _connections.Remove(deviceConfig.IpAddress);
             }
-            return Task.CompletedTask;
+            return new DeviceConnectionResult
+            {
+                IpAddress = deviceConfig.IpAddress,
+                Port = deviceConfig.Port,
+                SlaveId = deviceConfig.SlaveId,
+                StartAddress = deviceConfig.StartAddress,
+                NumberOfPoints = deviceConfig.NumberOfPoints,
+
+                IsConnected = false,
+                Status = "已断开",
+                ErrorMessage = null
+            };
         }
 
 
@@ -64,41 +122,16 @@ namespace IndustrialMonitor.Communication.Services
             }
             catch (Exception)
             {
-                return Array.Empty<ushort>();
+                return [];
             }
         }
 
-        public async Task<ObservableCollection<DeviceConnectionResult>> ScanipList(Dictionary<string, int> IpPortPairs)
+        public async Task<ObservableCollection<DeviceConnectionResult>> ScanipList(ObservableCollection<DeviceConfigModel> deviceConfigCollections)
         {
             
-            var tasks = IpPortPairs.Select(async pair =>
+            var tasks = deviceConfigCollections.Select(async deviceConfig =>
             {
-                try
-                {
-                    await ConnectAsync(pair.Key, pair.Value);
-
-                    return new DeviceConnectionResult
-                    {
-                        IpAddress = pair.Key,
-                        Port = pair.Value,
-                        IsConnected = true,
-                        Status = "Connected",
-                        ErrorMessage = null
-
-                    };
-                }
-                catch (Exception ex)
-                {
-                    return new DeviceConnectionResult
-                    {
-                        IpAddress = pair.Key,
-                        Port = pair.Value,
-                        IsConnected = false,
-                        Status = "Error",
-                        ErrorMessage = ex.Message
-
-                    };
-                }
+                return await ConnectAsync(deviceConfig);
             });
 
             var results = await Task.WhenAll(tasks);

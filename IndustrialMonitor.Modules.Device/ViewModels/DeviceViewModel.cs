@@ -1,4 +1,6 @@
-﻿using IndustrialMonitor.Core.Models;
+﻿using IndustrialMonitor.Communication.IServices;
+using IndustrialMonitor.Communication.Services;
+using IndustrialMonitor.Core.Models;
 using IndustrialMonitor.Modules.Device.Tools;
 using Prism.Common;
 using System;
@@ -7,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace IndustrialMonitor.Modules.Device.ViewModels
 {
@@ -15,56 +18,80 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
         private readonly DeviceStorageService _deviceStorageService = new();
         private readonly IDialogService _dialogService;
+        private readonly IEventAggregator _eventAggregator;
+        private readonly IDeviceCommunicationService _deviceComunicationService;
+
         public DelegateCommand LoadDeviceCmd { get; }
         public DelegateCommand OpenAddCmd { get; }
-        public DelegateCommand<DeviceConfigModel> DeleteDeviceCmd{ get; }
-        
 
-        public DeviceViewModel(IDialogService dialogService)
+        public DelegateCommand UpdataCommand { get; }
+        public DelegateCommand<DeviceConfigModel> DeleteDeviceCmd{ get; }
+
+        public ObservableCollection<DeviceItemViewModel> Devices { get; } = [];
+        public List<DeviceConfigModel> DeviceConfigModels = [];
+
+
+        public DeviceViewModel(IDialogService dialogService,IEventAggregator eventAggregator,IDeviceCommunicationService deviceCommunicationService)
         {
             _dialogService = dialogService;
+            _eventAggregator = eventAggregator;
+            _deviceComunicationService = deviceCommunicationService;
 
-            LoadDeviceCmd = new(async () => await LoadDevice());
-            DeleteDeviceCmd = new(async deviceConfigModel => await DeleteDevice(deviceConfigModel));
+            LoadDeviceCmd = new(async () => await LoadDeviceJson());
 
             
-            OpenAddCmd = new(() => {
 
-                DialogParameters keyValuePairs = new() { { "DeviceObservableCollection", DeviceObservableCollection } };
-                _dialogService.ShowDialog("DeviceAddWindow",keyValuePairs);
+
+            OpenAddCmd = new(() =>
+            {
+                DialogParameters keyValuePairs = new() { { "DeviceConfigModels", DeviceConfigModels } };
+                _dialogService.ShowDialog("DeviceAddWindow", keyValuePairs,async result =>
+                {
+                    if (result.Result == ButtonResult.OK) 
+                    {
+                        await LoadDeviceJson();
+                    }
+                });
             });
+
+            UpdataCommand = new(() => { });
+
         }
 
-        private ObservableCollection<DeviceConfigModel> _deviceObservableCollection;
-        public ObservableCollection<DeviceConfigModel> DeviceObservableCollection
+
+        public async Task LoadDeviceJson()
         {
-            get => _deviceObservableCollection;
-            set => SetProperty(ref _deviceObservableCollection, value);
+            Devices.Clear();
+            DeviceConfigModels = await _deviceStorageService.LoadDeviceJson();
+
+            foreach (var configmodel in DeviceConfigModels)
+            {
+                Devices.Add(new DeviceItemViewModel(configmodel, _deviceComunicationService));
+            }
         }
 
+        #region 连接 断开 删除
 
-        public async Task LoadDevice()
+
+        public async Task DeleteDevice(DeviceItemViewModel device)
         {
-            if(DeviceObservableCollection != null) DeviceObservableCollection.Clear();
-            DeviceObservableCollection = await _deviceStorageService.LoadDeviceJson();
+            if (_deviceComunicationService.IsConnected(device.ConfigModel.IpAddress))
+            {
+                MessageBox.Show("设备正在连接！请断开连接后重试");
+            }
+            Devices.Remove(device);
+            DeviceConfigModels.Remove(device.ConfigModel);
+            await _deviceStorageService.SaveDeviceAsJsonAsync(DeviceConfigModels);
+
         }
 
-        public async Task DeleteDevice(DeviceConfigModel deviceConfigModel)
-        {
-            DeviceObservableCollection.Remove(deviceConfigModel);
-            await _deviceStorageService.SaveDeviceAsJsonAsync(DeviceObservableCollection);
-        }
-
-        
-
-
-        
+        #endregion
 
         #region INavigationAware
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            //读json 
-            _ = LoadDevice();
+            
+            _ = LoadDeviceJson();
         }
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
@@ -78,5 +105,6 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         }
 
         #endregion
-    }
+
+        }
 }

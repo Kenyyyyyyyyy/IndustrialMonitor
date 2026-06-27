@@ -17,28 +17,28 @@ namespace IndustrialMonitor.Modules.Device.Tools
 
         public DeviceStorageService() 
         {
-            //string directory = @"C:\Users\56409\source\repos\Kenyyyyyyyyy\IndustrialMonitor\DeviceJson";
-            string directory = @"C:\Users\ADMIN\source\repos\IndustrialMonitor\DeviceJson";
+            string directory = @"C:\Users\56409\source\repos\Kenyyyyyyyyy\IndustrialMonitor\DeviceJson";
+            //string directory = @"C:\Users\ADMIN\source\repos\IndustrialMonitor\DeviceJson";
             Directory.CreateDirectory(directory);
             _filePath = Path.Combine(directory, "device.json");
         }
 
-        public async Task SaveDeviceAsJsonAsync(ObservableCollection<DeviceConfigModel> deviceObservable) 
+        public async Task SaveDeviceAsJsonAsync(List<DeviceConfigModel> deviceObservable) 
         {
             var json = JsonSerializer.Serialize(deviceObservable);
-            await File.WriteAllTextAsync("_filePath", json);
+            await File.WriteAllTextAsync(_filePath, json);
         }
 
 
-        public async Task<ObservableCollection<DeviceConfigModel>> LoadDeviceJson()
+        public async Task<List<DeviceConfigModel>> LoadDeviceJson()
         {
-            if (!File.Exists("_filePath")) return [];
+            if (!File.Exists(_filePath)) return [];
 
-            var json = await File.ReadAllTextAsync("_filePath");
+            var json = await File.ReadAllTextAsync(_filePath);
 
             if (json != null)
             {
-                return JsonSerializer.Deserialize<ObservableCollection<DeviceConfigModel>>(json) ?? [];
+                return JsonSerializer.Deserialize<List<DeviceConfigModel>>(json) ?? [];
                 
             }
             return [];

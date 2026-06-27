@@ -17,7 +17,7 @@
         </Grid>
 
 
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding DeviceObservableCollection}">
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding Devices}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Columns="4" Rows="2">
@@ -31,29 +31,46 @@
                 <DataTemplate>
                     <StackPanel>
                         <WrapPanel>
-                            <TextBlock Text="IpAddress"></TextBlock>
-                            <TextBox ></TextBox>
+                            <TextBlock Text="IpAddress: "/>
+                            <TextBlock Text="{Binding ConfigModel.IpAddress}" />
                         </WrapPanel>
                         <WrapPanel>
-                            <TextBlock Text="Port"></TextBlock>
-                            <TextBox ></TextBox>
+                            <TextBlock Text="Port: "/>
+                            <TextBlock Text="{Binding ConfigModel.Port}"/>
                         </WrapPanel>
                         <WrapPanel>
-                            <TextBlock Text="SlaveId"></TextBlock>
-                            <TextBox ></TextBox>
+                            <TextBlock Text="SlaveId: "/>
+                            <TextBlock Text="{Binding ConfigModel.SlaveId}"/>
                         </WrapPanel>
                         <WrapPanel>
-                            <TextBlock Text="StartAddress"></TextBlock>
-                            <TextBox ></TextBox>
+                            <TextBlock Text="StartAddress: "/>
+                            <TextBlock Text="{Binding ConfigModel.StartAddress}"/>
                         </WrapPanel>
                         <WrapPanel>
-                            <TextBlock Text="NumberOfPoints"></TextBlock>
-                            <TextBox ></TextBox>
+                            <TextBlock Text="NumberOfPoints: "/>
+                            <TextBlock Text="{Binding ConfigModel.NumberOfPoints}"/>
                         </WrapPanel>
+                        <WrapPanel>
+                            <TextBlock Text="状态: "/>
+                            <TextBlock Text="{Binding ConnectionResult.Status}"/>
+                        </WrapPanel>
+
+                        <TextBlock Text="{Binding ConnectionResult.ErrorMessage}"/>
+
+
+                        <Button Content="连接设备" 
+                                Command="{Binding ConnectCommand}"/>
                         
-                        <Button Content="连接"></Button>
-                        <Button Content="断开"></Button>
-                        <Button Content="delete"></Button>
+                        <Button Content="断开设备" 
+                                Command="{Binding DisconnectCommand}"/>
+                        
+                        <Button Content="修改设备" 
+                                Command="{Binding DataContext.UpdataCommand,
+                                RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+                        
+                        <Button Content="删除设备" 
+                                Command="{Binding DataContext.DeleteDevice,
+                                RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
                     </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
