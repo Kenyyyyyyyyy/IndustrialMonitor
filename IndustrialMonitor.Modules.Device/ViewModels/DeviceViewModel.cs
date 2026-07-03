@@ -2,6 +2,7 @@
 using IndustrialMonitor.Communication.Services;
 using IndustrialMonitor.Core.Models;
 using IndustrialMonitor.Modules.Device.Tools;
+using Prism.Commands;
 using Prism.Common;
 using System;
 using System.Collections.Generic;
@@ -24,8 +25,8 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         public DelegateCommand LoadDeviceCmd { get; }
         public DelegateCommand OpenAddCmd { get; }
 
-        public DelegateCommand UpdataCommand { get; }
-        public DelegateCommand<DeviceConfigModel> DeleteDeviceCmd{ get; }
+        public DelegateCommand<DeviceItemViewModel> UpdataCommand { get; }
+        public DelegateCommand<DeviceItemViewModel> DeleteCommand { get; }
 
         public ObservableCollection<DeviceItemViewModel> Devices { get; } = [];
         public List<DeviceConfigModel> DeviceConfigModels = [];
@@ -39,12 +40,14 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
             LoadDeviceCmd = new(async () => await LoadDeviceJson());
 
-            
-
-
             OpenAddCmd = new(() =>
             {
-                DialogParameters keyValuePairs = new() { { "DeviceConfigModels", DeviceConfigModels } };
+                DialogParameters keyValuePairs = new() 
+                { 
+                    { "DeviceConfigModels", DeviceConfigModels },
+                    { "Mode", "Add" } 
+                };
+
                 _dialogService.ShowDialog("DeviceAddWindow", keyValuePairs,async result =>
                 {
                     if (result.Result == ButtonResult.OK) 
@@ -54,8 +57,26 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
                 });
             });
 
-            UpdataCommand = new(() => { });
+            UpdataCommand = new((deviceconfig) => 
+            {
+                DialogParameters keyValuePairs = new()
+                {
+                    { "DeviceConfigModels", DeviceConfigModels },
+                    { "DeviceConfigModel", deviceconfig.ConfigModel },
+                    { "Mode", "Update" }
+                };
 
+                _dialogService.ShowDialog("DeviceAddWindow", keyValuePairs, async result =>
+                {
+                    if (result.Result == ButtonResult.OK)
+                    {
+                        await LoadDeviceJson();
+                    }
+                });
+
+            });
+
+            DeleteCommand = new(async (deviceitem) => await DeleteDevice(deviceitem));
         }
 
 
@@ -70,27 +91,25 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
             }
         }
 
-        #region 连接 断开 删除
+        
 
-
-        public async Task DeleteDevice(DeviceItemViewModel device)
+        public async Task DeleteDevice(DeviceItemViewModel deviceitem)
         {
-            if (_deviceComunicationService.IsConnected(device.ConfigModel.IpAddress))
+            if (deviceitem.ConfigModel.IpAddress != null && _deviceComunicationService.IsConnected(deviceitem.ConfigModel.IpAddress))
             {
                 MessageBox.Show("设备正在连接！请断开连接后重试");
+                return;
             }
-            Devices.Remove(device);
-            DeviceConfigModels.Remove(device.ConfigModel);
+            Devices.Remove(deviceitem);
+            DeviceConfigModels.Remove(deviceitem.ConfigModel);
             await _deviceStorageService.SaveDeviceAsJsonAsync(DeviceConfigModels);
 
         }
 
-        #endregion
 
         #region INavigationAware
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            
             _ = LoadDeviceJson();
         }
 

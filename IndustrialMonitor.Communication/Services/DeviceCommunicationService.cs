@@ -65,7 +65,8 @@ namespace IndustrialMonitor.Communication.Services
                 IpAddress = deviceConfig.IpAddress,
                 tcpClient = _tcpClient,
                 modbusMaster = factory.CreateMaster(_tcpClient),
-                IsConnected = true
+                IsConnected = true,
+                DeviceConfig = deviceConfig
             };
 
             return new DeviceConnectionResult
@@ -111,13 +112,17 @@ namespace IndustrialMonitor.Communication.Services
             return _connections.ContainsKey(ipAddress);
         }
 
-        public async Task<ushort[]> ReadHoldingRegistersAsync(string ipAddress, byte slaveId, ushort startAddress, ushort numberOfPoints)
+        public async Task<ushort[]> ReadHoldingRegistersAsync(string ipAddress)
         {
             if (!_connections.TryGetValue(ipAddress, out var connection)) return [];
 
+
+            
+
             try
             {
-                ushort[] registers = await Task.Run(() => connection.modbusMaster.ReadHoldingRegisters(slaveId, startAddress, numberOfPoints));
+                ushort[] registers = await Task.Run(
+                    () => connection.modbusMaster.ReadHoldingRegisters(_connections[ipAddress].DeviceConfig.SlaveId, _connections[ipAddress].DeviceConfig.StartAddress, _connections[ipAddress].DeviceConfig.NumberOfPoints));
                 return registers;
             }
             catch (Exception)
@@ -126,17 +131,32 @@ namespace IndustrialMonitor.Communication.Services
             }
         }
 
-        public async Task<ObservableCollection<DeviceConnectionResult>> ScanipList(ObservableCollection<DeviceConfigModel> deviceConfigCollections)
+        public ObservableCollection<string> ScanipList()
         {
-            
-            var tasks = deviceConfigCollections.Select(async deviceConfig =>
+
+            ////var tasks = deviceConfigCollections.Select(async deviceConfig =>
+            ////{
+            ////    return await ConnectAsync(deviceConfig);
+            ////});
+
+            //var tasks = _connections.Select(connection =>
+            //{
+            //    return connection.Key;
+            //});
+
+
+
+            //var results = await Task.WhenAll(tasks);
+
+            //return new ObservableCollection<DeviceConnectionResult>(results);
+            ObservableCollection<string> conlist = [];
+
+            foreach (string ipAddress in _connections.Keys)
             {
-                return await ConnectAsync(deviceConfig);
-            });
+                conlist.Add(ipAddress);
+            }
 
-            var results = await Task.WhenAll(tasks);
-
-            return new ObservableCollection<DeviceConnectionResult>(results);
+            return conlist;
 
         }
     }

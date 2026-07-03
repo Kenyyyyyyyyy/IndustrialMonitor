@@ -4,6 +4,8 @@ using IndustrialMonitor.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Formats.Asn1;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -18,8 +20,6 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
         private readonly IDeviceCommunicationService _deviceCommunicationService;
         public DelegateCommand<string> OpenDetailCmd { get; }
 
-
-
         public DashboardViewModel(IDialogService dialogService, IDeviceCommunicationService deviceCommunicationService)
         {
             _dialogService = dialogService;
@@ -32,12 +32,15 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             });
         }
 
-        
+        public void GetIpAsync()
+        {
+            Conlist = _deviceCommunicationService.ScanipList();
+        }
 
         #region INavigationAware
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            
+            GetIpAsync();
         }
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
@@ -87,6 +90,16 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             get => _deviceStatus;
             set => SetProperty(ref _deviceStatus, value);
         }
+
+
+        private ObservableCollection<string> _conList;
+
+        public ObservableCollection<string> Conlist
+        {
+            get { return _conList; }
+            set { _conList = value; }
+        }
+
 
         #endregion
     }

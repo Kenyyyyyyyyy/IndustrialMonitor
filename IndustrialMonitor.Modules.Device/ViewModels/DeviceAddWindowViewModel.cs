@@ -1,5 +1,6 @@
 ﻿using IndustrialMonitor.Core.Models;
 using IndustrialMonitor.Modules.Device.Tools;
+using Prism.Common;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,23 +15,69 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 {
     public class DeviceAddWindowViewModel : BindableBase, IDialogAware
     {
-        public string Title { get; } ="添加设备";
+
+        private string _title;
+
+        public string Title
+        {
+            get =>  _title; 
+            set =>  SetProperty(ref _title, value);
+        }
+
+        private string _buttonConCent;
+
+        public string ButtonConCent
+        {
+            get { return _buttonConCent; }
+            set { _buttonConCent = value; }
+        }
+
+
+        public string Mode { get; }
+
         private readonly DeviceStorageService _deviceStorageService = new();
         public DialogCloseListener RequestClose { get; }
 
-        public DelegateCommand AddDeviceCmd { get; }
+        public DelegateCommand<string> ControlDeviceCmd { get; }
+
+        public DeviceConfigModel originalDeviceConfig { get; set; }
 
         public DeviceAddWindowViewModel()
         {
-            AddDeviceCmd = new(async () => await AddDevice());
+            ControlDeviceCmd = new(async (buttoncontent) => 
+            {
+                if(buttoncontent == "添加")
+                {
+                    await AddDevice();
+                }
+
+                if (buttoncontent == "修改")
+                {
+                    await UpdateDevice();
+                }
+            });
         }
 
         public async Task AddDevice()
         {
+            _deviceConfigList.Add(DeviceConfig);
+            await _deviceStorageService.SaveDeviceAsJsonAsync(_deviceConfigList);
+            RequestClose.Invoke(ButtonResult.OK);
+        }
 
-            DeviceConfigModels.Add(Device);
-            await _deviceStorageService.SaveDeviceAsJsonAsync(DeviceConfigModels);
-            Device = new();
+        public async Task UpdateDevice()
+        {
+            int index = _deviceConfigList.FindIndex(x => x.Id == originalDeviceConfig.Id);
+
+            if (index < 0)
+            {
+                MessageBox.Show("json的devicelist中找不到此device");
+                return;
+            }
+
+            _deviceConfigList[index] = DeviceConfig;
+            await _deviceStorageService.SaveDeviceAsJsonAsync(_deviceConfigList);
+            
             RequestClose.Invoke(ButtonResult.OK);
         }
 
@@ -42,31 +89,52 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
         public void OnDialogClosed()
         {
-            
+            DeviceConfig = new();
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            DeviceConfigModels = parameters.GetValue<List<DeviceConfigModel>>("DeviceConfigModels");
+            _deviceConfigList = parameters.GetValue<List<DeviceConfigModel>>("DeviceConfigModels");
+
+            if (parameters.GetValue<string>("Mode") == "Add")
+            {
+                Title = "添加设备";
+                ButtonConCent = "添加";
+            }
+            if (parameters.GetValue<string>("Mode") == "Update")
+            {
+                Title = "修改设备";
+                ButtonConCent = "修改";
+                originalDeviceConfig = parameters.GetValue<DeviceConfigModel>("DeviceConfigModel");
+                DeviceConfig = new DeviceConfigModel
+                {
+                    Id = originalDeviceConfig.Id,
+                    IpAddress = originalDeviceConfig.IpAddress,
+                    Port = originalDeviceConfig.Port,
+                    SlaveId = originalDeviceConfig.SlaveId,
+                    StartAddress = originalDeviceConfig.StartAddress,
+                    NumberOfPoints = originalDeviceConfig.NumberOfPoints
+                };
+            }
         }
 
         #endregion
 
 
 
-        private List<DeviceConfigModel> _deviceConfigModels;
-        public List<DeviceConfigModel> DeviceConfigModels
+        private List<DeviceConfigModel> _deviceConfigList;
+        public List<DeviceConfigModel> DeviceConfigList
         {
-            get => _deviceConfigModels;
-            set => SetProperty(ref _deviceConfigModels, value);
+            get => _deviceConfigList;
+            set => SetProperty(ref _deviceConfigList, value);
         }
 
-        private DeviceConfigModel _device = new();
+        private DeviceConfigModel _deviceConfig = new();
 
-        public DeviceConfigModel Device
+        public DeviceConfigModel DeviceConfig
         {
-            get => _device;
-            set => SetProperty(ref _device, value);
+            get => _deviceConfig;
+            set => SetProperty(ref _deviceConfig, value);
         }
     }
 }

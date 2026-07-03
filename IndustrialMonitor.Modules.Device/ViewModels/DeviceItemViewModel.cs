@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace IndustrialMonitor.Modules.Device.ViewModels
@@ -41,6 +42,10 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
         public async Task ConnectAsync()
         {
+            if(DeviceCommunicationService.IsConnected(ConfigModel.IpAddress))
+            {
+                return;
+            }
             ConnectionResult = await DeviceCommunicationService.ConnectAsync(ConfigModel);
         }
 

@@ -14,5 +14,7 @@ namespace IndustrialMonitor.Core.Models
         public IModbusMaster modbusMaster { get; set; }
         public TcpClient tcpClient { get; set; }
         public bool IsConnected { get; set; }
+
+        public DeviceConfigModel DeviceConfig { get; set; }
     }
 }

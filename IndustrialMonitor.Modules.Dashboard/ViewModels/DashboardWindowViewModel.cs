@@ -105,7 +105,7 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             {
                 try
                 {
-                    detailHelper.UpdateDeviceDetails(await _deviceCommunicationService.ReadHoldingRegistersAsync(IpAddress,1,0,30));
+                    detailHelper.UpdateDeviceDetails(await _deviceCommunicationService.ReadHoldingRegistersAsync(IpAddress));
 
                     DeviceDetails = detailHelper.DeviceDetails;
                     TemperatureItems = detailHelper.TemperatureItems;

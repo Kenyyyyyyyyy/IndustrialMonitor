@@ -11,35 +11,41 @@
             <WrapPanel Margin="5">
                 <TextBlock Text="IpAddress" Width="100"></TextBlock>
                 <TextBox Width="100" 
-                         Text="{Binding Device.IpAddress,
+                         Text="{Binding DeviceConfig.IpAddress,
                          UpdateSourceTrigger=PropertyChanged}"></TextBox>
             </WrapPanel>
+            
             <WrapPanel Margin="5">
                 <TextBlock Text="Port" Width="100"></TextBlock>
                 <TextBox Width="100" 
-                         Text="{Binding Device.Port,
+                         Text="{Binding DeviceConfig.Port,
                          UpdateSourceTrigger=PropertyChanged}"></TextBox>
             </WrapPanel>
+            
             <WrapPanel Margin="5">
                 <TextBlock Text="SlaveId" Width="100"></TextBlock>
                 <TextBox Width="100" 
-                         Text="{Binding Device.SlaveId,
+                         Text="{Binding DeviceConfig.SlaveId,
                          UpdateSourceTrigger=PropertyChanged}"></TextBox>
             </WrapPanel>
+            
             <WrapPanel Margin="5">
                 <TextBlock Text="StartAddress" Width="100"></TextBlock>
                 <TextBox Width="100" 
-                         Text="{Binding Device.StartAddress,
+                         Text="{Binding DeviceConfig.StartAddress,
                          UpdateSourceTrigger=PropertyChanged}"></TextBox>
             </WrapPanel>
+            
             <WrapPanel Margin="5">
                 <TextBlock Text="NumberOfPoints" Width="100"></TextBlock>
                 <TextBox Width="100" 
-                         Text="{Binding Device.NumberOfPoints,
+                         Text="{Binding DeviceConfig.NumberOfPoints,
                          UpdateSourceTrigger=PropertyChanged}"></TextBox>
             </WrapPanel>
 
-            <Button Content="添加" Command="{Binding AddDeviceCmd}" Width="100" HorizontalAlignment="Center" Margin="10"></Button>
+            <Button Content="{Binding ButtonConCent}" Command="{Binding ControlDeviceCmd}" 
+                    CommandParameter="{Binding ButtonConCent}"
+                    Width="100" HorizontalAlignment="Center" Margin="10"></Button>
         </StackPanel>
     </Grid>
 </UserControl>

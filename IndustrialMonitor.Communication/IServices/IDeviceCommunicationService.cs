@@ -14,11 +14,11 @@ namespace IndustrialMonitor.Communication.IServices
 
         public DeviceConnectionResult DisconnectAsync(DeviceConfigModel deviceConfig);
 
-        Task<ushort[]> ReadHoldingRegistersAsync(string ipAddress,byte slaveId,ushort startAddress,ushort numberOfPoints);
+        Task<ushort[]> ReadHoldingRegistersAsync(string ipAddress);
 
         bool IsConnected(string ipAddress);
 
-        Task<ObservableCollection<DeviceConnectionResult>> ScanipList(ObservableCollection<DeviceConfigModel> deviceConfigCollections);
+        ObservableCollection<string> ScanipList();
 
     }
 }
