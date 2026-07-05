@@ -14,7 +14,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
     public class DeviceItemViewModel: BindableBase
     {
         public DeviceConfigModel ConfigModel { get; }
-        //public DeviceConnectionResult? ConnectionResult { get; private set; }
+        
 
         private DeviceConnectionResult _connectionResult;
 

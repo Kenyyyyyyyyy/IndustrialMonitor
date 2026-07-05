@@ -1,5 +1,6 @@
 ﻿using IndustrialMonitor.Communication.IServices;
 using IndustrialMonitor.Core.Models;
+using IndustrialMonitor.Modules.Dashboard.Tools;
 using Prism.Navigation.Regions;
 using System;
 using System.Collections.Generic;

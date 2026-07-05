@@ -17,8 +17,8 @@ namespace IndustrialMonitor.Modules.Device.Tools
 
         public DeviceStorageService() 
         {
-            string directory = @"C:\Users\56409\source\repos\Kenyyyyyyyyy\IndustrialMonitor\DeviceJson";
-            //string directory = @"C:\Users\ADMIN\source\repos\IndustrialMonitor\DeviceJson";
+            //string directory = @"C:\Users\56409\source\repos\Kenyyyyyyyyy\IndustrialMonitor\DeviceJson";
+            string directory = @"C:\Users\ADMIN\source\repos\IndustrialMonitor\DeviceJson";
             Directory.CreateDirectory(directory);
             _filePath = Path.Combine(directory, "device.json");
         }
