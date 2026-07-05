@@ -17,13 +17,11 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         
 
         private DeviceConnectionResult _connectionResult;
-
         public DeviceConnectionResult ConnectionResult
         {
             get => _connectionResult; 
             set => SetProperty(ref _connectionResult, value);
         }
-
 
         public DelegateCommand ConnectCommand { get; }
         public DelegateCommand DisconnectCommand { get; }
@@ -36,7 +34,6 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
             _ = ConnectAsync();
 
             ConnectCommand = new(async () => await ConnectAsync());
-
             DisconnectCommand = new(() => DisconnectAsync());
         }
 
@@ -47,6 +44,10 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
                 return;
             }
             ConnectionResult = await DeviceCommunicationService.ConnectAsync(ConfigModel);
+            if (ConnectionResult.IsConnected)
+            {
+
+            }
         }
 
         public void DisconnectAsync()

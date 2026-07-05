@@ -25,6 +25,8 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         public DelegateCommand LoadDeviceCmd { get; }
         public DelegateCommand OpenAddCmd { get; }
 
+        public DelegateCommand RefreshCmd { get; }
+
         public DelegateCommand<DeviceItemViewModel> UpdataCommand { get; }
         public DelegateCommand<DeviceItemViewModel> DeleteCommand { get; }
 
@@ -57,12 +59,18 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
                 });
             });
 
-            UpdataCommand = new((deviceconfig) => 
+            UpdataCommand = new((deviceitem) => 
             {
+                if (deviceitem.ConfigModel.IpAddress != null && _deviceComunicationService.IsConnected(deviceitem.ConfigModel.IpAddress))
+                {
+                    MessageBox.Show("设备正在连接！请断开连接后重试");
+                    return;
+                }
+
                 DialogParameters keyValuePairs = new()
                 {
                     { "DeviceConfigModels", DeviceConfigModels },
-                    { "DeviceConfigModel", deviceconfig.ConfigModel },
+                    { "DeviceConfigModel", deviceitem.ConfigModel },
                     { "Mode", "Update" }
                 };
 
@@ -77,6 +85,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
             });
 
             DeleteCommand = new(async (deviceitem) => await DeleteDevice(deviceitem));
+
         }
 
 
@@ -110,7 +119,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         #region INavigationAware
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            _ = LoadDeviceJson();
+            
         }
 
         public bool IsNavigationTarget(NavigationContext navigationContext)

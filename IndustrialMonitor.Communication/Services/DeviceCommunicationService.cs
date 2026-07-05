@@ -16,19 +16,12 @@ namespace IndustrialMonitor.Communication.Services
     {
         private readonly Dictionary<string, ModbusConnectionModel> _connections = [];
 
-
         public async Task<DeviceConnectionResult> ConnectAsync(DeviceConfigModel deviceConfig)
         {
             if (_connections.ContainsKey(deviceConfig.IpAddress))
             {
                 return new DeviceConnectionResult
                 {
-                    IpAddress = deviceConfig.IpAddress,
-                    Port = deviceConfig.Port,
-                    SlaveId = deviceConfig.SlaveId,
-                    StartAddress = deviceConfig.StartAddress,
-                    NumberOfPoints = deviceConfig.NumberOfPoints,
-
                     IsConnected = true,
                     Status = "已连接",
                     ErrorMessage = null
@@ -45,12 +38,6 @@ namespace IndustrialMonitor.Communication.Services
             {
                 return new DeviceConnectionResult
                 {
-                    IpAddress = deviceConfig.IpAddress,
-                    Port = deviceConfig.Port,
-                    SlaveId = deviceConfig.SlaveId,
-                    StartAddress = deviceConfig.StartAddress,
-                    NumberOfPoints = deviceConfig.NumberOfPoints,
-
                     IsConnected = false,
                     Status = "连接失败",
                     ErrorMessage = ex.Message
@@ -71,12 +58,6 @@ namespace IndustrialMonitor.Communication.Services
 
             return new DeviceConnectionResult
             {
-                IpAddress = deviceConfig.IpAddress,
-                Port = deviceConfig.Port,
-                SlaveId = deviceConfig.SlaveId,
-                StartAddress = deviceConfig.StartAddress,
-                NumberOfPoints = deviceConfig.NumberOfPoints,
-
                 IsConnected = true,
                 Status = "已连接",
                 ErrorMessage = null
@@ -94,61 +75,71 @@ namespace IndustrialMonitor.Communication.Services
             }
             return new DeviceConnectionResult
             {
-                IpAddress = deviceConfig.IpAddress,
-                Port = deviceConfig.Port,
-                SlaveId = deviceConfig.SlaveId,
-                StartAddress = deviceConfig.StartAddress,
-                NumberOfPoints = deviceConfig.NumberOfPoints,
-
                 IsConnected = false,
                 Status = "已断开",
                 ErrorMessage = null
             };
         }
 
-
         public bool IsConnected(string ipAddress)
         {
             return _connections.ContainsKey(ipAddress);
         }
 
-        public async Task<ushort[]> ReadHoldingRegistersAsync(string ipAddress)
+        public async Task<ReadRegistersResult> ReadHoldingRegistersAsync(string ipAddress)
         {
-            if (!_connections.TryGetValue(ipAddress, out var connection)) return [];
-
-
-            
+            if (!_connections.TryGetValue(ipAddress, out var connection)) 
+                return new ReadRegistersResult
+                {
+                    Success = false,
+                    Data = [],
+                    ErrorMessage = "设备未连接",
+                    IsConnected = false
+                };
 
             try
             {
                 ushort[] registers = await Task.Run(
-                    () => connection.modbusMaster.ReadHoldingRegisters(_connections[ipAddress].DeviceConfig.SlaveId, _connections[ipAddress].DeviceConfig.StartAddress, _connections[ipAddress].DeviceConfig.NumberOfPoints));
-                return registers;
+                    () => connection.modbusMaster.ReadHoldingRegisters
+                    (_connections[ipAddress].DeviceConfig.SlaveId,
+                    _connections[ipAddress].DeviceConfig.StartAddress,
+                    _connections[ipAddress].DeviceConfig.NumberOfPoints));
+                return new ReadRegistersResult
+                {
+                    Success = true,
+                    Data = registers,
+                    ErrorMessage = null,
+                    IsConnected = true
+                };
             }
-            catch (Exception)
+
+            catch (SlaveException ex)
             {
-                return [];
+                DisconnectAsync(_connections[ipAddress].DeviceConfig);
+                return new ReadRegistersResult
+                {
+                    Success = false,
+                    Data = [],
+                    ErrorMessage = ex.Message,
+                    IsConnected = false
+                };
+            }
+
+            catch (Exception ex)
+            {
+                DisconnectAsync(_connections[ipAddress].DeviceConfig);
+                return new ReadRegistersResult
+                {
+                    Success = false,
+                    Data = [],
+                    ErrorMessage = ex.Message,
+                    IsConnected = false
+                };
             }
         }
 
         public ObservableCollection<string> ScanipList()
         {
-
-            ////var tasks = deviceConfigCollections.Select(async deviceConfig =>
-            ////{
-            ////    return await ConnectAsync(deviceConfig);
-            ////});
-
-            //var tasks = _connections.Select(connection =>
-            //{
-            //    return connection.Key;
-            //});
-
-
-
-            //var results = await Task.WhenAll(tasks);
-
-            //return new ObservableCollection<DeviceConnectionResult>(results);
             ObservableCollection<string> conlist = [];
 
             foreach (string ipAddress in _connections.Keys)
@@ -158,6 +149,22 @@ namespace IndustrialMonitor.Communication.Services
 
             return conlist;
 
+        }
+
+
+        public async Task<DeviceDataModel> CreateDataModel(string ipAddress)
+        {
+            var result = await ReadHoldingRegistersAsync(ipAddress);
+            
+            DeviceDataModel deviceDataModel = new()
+            {
+                DeviceId = _connections[ipAddress].DeviceConfig.Id,
+                DateTime = DateTime.Now
+            };
+
+            deviceDataModel.SetValues(result.Data);
+
+            return deviceDataModel;
         }
     }
 }

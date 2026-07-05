@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 
 namespace IndustrialMonitor.Core.Models
 {
-    public class DeviceConnectionResult
+    public class ReadRegistersResult
     {
+        public bool Success { get; set; }
 
-        public bool IsConnected { get; set; }
-        public string Status { get; set; } = "未连接";
+        public ushort[] Data { get; set; } = [];
+
         public string? ErrorMessage { get; set; }
 
+        public bool IsConnected { get; set; }
     }
 }

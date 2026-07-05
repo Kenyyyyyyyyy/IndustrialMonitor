@@ -15,7 +15,8 @@ namespace IndustrialMonitor.Core.SqlServer
         protected override void OnConfiguring(DbContextOptionsBuilder dbContextOptionsBuilder)
         {
             base.OnConfiguring(dbContextOptionsBuilder);
-            dbContextOptionsBuilder.UseSqlServer("Server=127.0.0.1;uid=sa;pwd=mmsdsl123;Database=IndustrialMonitor;Trusted_Connection=True;TrustServerCertificate=True;");
+            dbContextOptionsBuilder.UseSqlServer("Server=SAISYORIN\\SQLEXPRESS;uid=sa;pwd=mmsdsl123;Database=IndustrialMonitor;Trusted_Connection=True;TrustServerCertificate=True;");
+            //dbContextOptionsBuilder.UseSqlServer("Server=127.0.0.1;uid=sa;pwd=mmsdsl123;Database=IndustrialMonitor;Trusted_Connection=True;TrustServerCertificate=True;");
         }
     }
 }

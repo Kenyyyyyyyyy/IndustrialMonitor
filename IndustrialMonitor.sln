@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndustrialMonitor.Communica
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndustrialMonitor.Core", "IndustrialMonitor.Core\IndustrialMonitor.Core.csproj", "{7593C28F-3F80-40FF-9900-74C36738B907}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndustrialMonitor.DataAcquisition", "IndustrialMonitor.DataAcquisition\IndustrialMonitor.DataAcquisition.csproj", "{EB22B67D-2A95-4C9D-8F72-BA6831A9F35E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,10 @@ Global
 		{7593C28F-3F80-40FF-9900-74C36738B907}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7593C28F-3F80-40FF-9900-74C36738B907}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7593C28F-3F80-40FF-9900-74C36738B907}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB22B67D-2A95-4C9D-8F72-BA6831A9F35E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB22B67D-2A95-4C9D-8F72-BA6831A9F35E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB22B67D-2A95-4C9D-8F72-BA6831A9F35E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB22B67D-2A95-4C9D-8F72-BA6831A9F35E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -106,7 +106,13 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             {
                 try
                 {
-                    detailHelper.UpdateDeviceDetails(await _deviceCommunicationService.ReadHoldingRegistersAsync(IpAddress));
+                    ReadRegistersResult readRegistersResult = await _deviceCommunicationService.ReadHoldingRegistersAsync(IpAddress);
+                    if (readRegistersResult.ErrorMessage != null)
+                    {
+                        MessageBox.Show(readRegistersResult.ErrorMessage);
+                    }
+
+                    detailHelper.UpdateDeviceDetails(readRegistersResult.Data);
 
                     DeviceDetails = detailHelper.DeviceDetails;
                     TemperatureItems = detailHelper.TemperatureItems;
@@ -119,6 +125,7 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.InnerException?.Message ?? ex.Message);
+                    return;
                 }
 
                 await Task.Delay(1000, cancellationToken);
