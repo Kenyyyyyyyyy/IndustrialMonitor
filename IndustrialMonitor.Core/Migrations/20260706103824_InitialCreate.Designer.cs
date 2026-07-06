@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IndustrialMonitor.Core.Migrations
 {
     [DbContext(typeof(IndustrialMonitorDbContext))]
-    [Migration("20260704183026_InitialCreate")]
+    [Migration("20260706103824_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -27,11 +27,17 @@ namespace IndustrialMonitor.Core.Migrations
 
             modelBuilder.Entity("IndustrialMonitor.Core.Models.DeviceDataModel", b =>
                 {
-                    b.Property<string>("DeviceId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("value00")
                         .HasColumnType("int");
@@ -123,7 +129,7 @@ namespace IndustrialMonitor.Core.Migrations
                     b.Property<int>("value29")
                         .HasColumnType("int");
 
-                    b.HasKey("DeviceId");
+                    b.HasKey("Id");
 
                     b.ToTable("DeviceDataModels");
                 });

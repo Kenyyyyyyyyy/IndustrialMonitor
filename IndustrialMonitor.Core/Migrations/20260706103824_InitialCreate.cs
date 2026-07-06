@@ -15,7 +15,9 @@ namespace IndustrialMonitor.Core.Migrations
                 name: "DeviceDataModels",
                 columns: table => new
                 {
-                    DeviceId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DeviceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     value00 = table.Column<int>(type: "int", nullable: false),
                     value01 = table.Column<int>(type: "int", nullable: false),
@@ -50,7 +52,7 @@ namespace IndustrialMonitor.Core.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DeviceDataModels", x => x.DeviceId);
+                    table.PrimaryKey("PK_DeviceDataModels", x => x.Id);
                 });
         }
 

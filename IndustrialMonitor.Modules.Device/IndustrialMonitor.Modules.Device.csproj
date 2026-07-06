@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\IndustrialMonitor.Communication\IndustrialMonitor.Communication.csproj" />
     <ProjectReference Include="..\IndustrialMonitor.Core\IndustrialMonitor.Core.csproj" />
+    <ProjectReference Include="..\IndustrialMonitor.DataAcquisition\IndustrialMonitor.DataAcquisition.csproj" />
   </ItemGroup>
 
 </Project>

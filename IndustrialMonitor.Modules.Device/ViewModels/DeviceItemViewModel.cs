@@ -1,6 +1,8 @@
 ﻿using IndustrialMonitor.Communication.IServices;
 using IndustrialMonitor.Communication.Services;
 using IndustrialMonitor.Core.Models;
+using IndustrialMonitor.DataAcquisition.IServices;
+using IndustrialMonitor.DataAcquisition.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,14 +29,19 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         public DelegateCommand DisconnectCommand { get; }
 
         private IDeviceCommunicationService DeviceCommunicationService { get; }
-        public DeviceItemViewModel(DeviceConfigModel configModel, IDeviceCommunicationService deviceCommunicationService)
+        private IAcquisitionService _acquisitionservice { get; }
+        public DeviceItemViewModel(DeviceConfigModel configModel, 
+                                   IDeviceCommunicationService deviceCommunicationService, 
+                                   IAcquisitionService acquisitionService)
         {
             ConfigModel = configModel;
             DeviceCommunicationService = deviceCommunicationService;
+            _acquisitionservice = acquisitionService;
             _ = ConnectAsync();
 
             ConnectCommand = new(async () => await ConnectAsync());
             DisconnectCommand = new(() => DisconnectAsync());
+
         }
 
         public async Task ConnectAsync()
@@ -44,15 +51,21 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
                 return;
             }
             ConnectionResult = await DeviceCommunicationService.ConnectAsync(ConfigModel);
+
             if (ConnectionResult.IsConnected)
             {
-
+                await _acquisitionservice.StartCollectAsync(ConfigModel.IpAddress);
             }
         }
 
         public void DisconnectAsync()
         {
             ConnectionResult = DeviceCommunicationService.DisconnectAsync(ConfigModel);
+
+            if (!ConnectionResult.IsConnected)
+            {
+                _acquisitionservice.StopCollectAsync(ConfigModel.IpAddress);
+            }
         }
     }
 }

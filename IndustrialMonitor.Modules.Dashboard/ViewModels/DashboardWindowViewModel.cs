@@ -68,9 +68,6 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             _deviceCommunicationService = deviceCommunicationService;
         }
 
-
-        
-
         public DialogCloseListener RequestClose { get; }
 
         public bool CanCloseDialog()

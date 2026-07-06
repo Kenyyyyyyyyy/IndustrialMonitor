@@ -11,6 +11,9 @@ namespace IndustrialMonitor.Core.Models
 
     public class DeviceDataModel
     {
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
         public long Id { get; set; }
         public Guid DeviceId { get; set; }
 

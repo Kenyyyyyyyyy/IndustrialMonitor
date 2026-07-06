@@ -1,6 +1,7 @@
 ﻿using IndustrialMonitor.Communication.IServices;
 using IndustrialMonitor.Communication.Services;
 using IndustrialMonitor.Core.Models;
+using IndustrialMonitor.DataAcquisition.IServices;
 using IndustrialMonitor.Modules.Device.Tools;
 using Prism.Commands;
 using Prism.Common;
@@ -21,6 +22,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
         private readonly IDeviceCommunicationService _deviceComunicationService;
+        private readonly IAcquisitionService _acquisitionService;
 
         public DelegateCommand LoadDeviceCmd { get; }
         public DelegateCommand OpenAddCmd { get; }
@@ -34,11 +36,15 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         public List<DeviceConfigModel> DeviceConfigModels = [];
 
 
-        public DeviceViewModel(IDialogService dialogService,IEventAggregator eventAggregator,IDeviceCommunicationService deviceCommunicationService)
+        public DeviceViewModel(IDialogService dialogService,
+                               IEventAggregator eventAggregator,
+                               IDeviceCommunicationService deviceCommunicationService,
+                               IAcquisitionService acquisitionService)
         {
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
             _deviceComunicationService = deviceCommunicationService;
+            _acquisitionService = acquisitionService;
 
             LoadDeviceCmd = new(async () => await LoadDeviceJson());
 
@@ -96,7 +102,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
             foreach (var configmodel in DeviceConfigModels)
             {
-                Devices.Add(new DeviceItemViewModel(configmodel, _deviceComunicationService));
+                Devices.Add(new DeviceItemViewModel(configmodel, _deviceComunicationService, _acquisitionService));
             }
         }
 

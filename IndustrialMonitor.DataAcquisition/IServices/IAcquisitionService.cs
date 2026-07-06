@@ -8,6 +8,9 @@ namespace IndustrialMonitor.DataAcquisition.IServices
 {
     public interface IAcquisitionService
     {
-        public Task WriteInResister();
+
+        public Task StartCollectAsync(string ipAddress);
+
+        public void StopCollectAsync(string ipAddress);
     }
 }

@@ -120,7 +120,7 @@ namespace IndustrialMonitor.Communication.Services
                 {
                     Success = false,
                     Data = [],
-                    ErrorMessage = ex.Message,
+                    ErrorMessage = "Slave错误" + ex.Message,
                     IsConnected = false
                 };
             }
@@ -132,7 +132,7 @@ namespace IndustrialMonitor.Communication.Services
                 {
                     Success = false,
                     Data = [],
-                    ErrorMessage = ex.Message,
+                    ErrorMessage = "Exception错误" + ex.Message,
                     IsConnected = false
                 };
             }
