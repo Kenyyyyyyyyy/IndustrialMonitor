@@ -46,10 +46,6 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
         public async Task ConnectAsync()
         {
-            if(DeviceCommunicationService.IsConnected(ConfigModel.IpAddress))
-            {
-                return;
-            }
             ConnectionResult = await DeviceCommunicationService.ConnectAsync(ConfigModel);
 
             if (ConnectionResult.IsConnected)
@@ -60,12 +56,11 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
         public void DisconnectAsync()
         {
-            ConnectionResult = DeviceCommunicationService.DisconnectAsync(ConfigModel);
-
-            if (!ConnectionResult.IsConnected)
+            if (ConnectionResult.IsConnected)
             {
                 _acquisitionservice.StopCollectAsync(ConfigModel.IpAddress);
             }
+            ConnectionResult = DeviceCommunicationService.DisconnectAsync(ConfigModel);
         }
     }
 }

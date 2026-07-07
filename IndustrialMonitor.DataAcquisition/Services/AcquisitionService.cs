@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,7 +29,7 @@ namespace IndustrialMonitor.DataAcquisition.Services
 
         public Task StartCollectAsync(string ipAddress)
         {
-            if(_tokens.ContainsKey(ipAddress))
+            if (_tokens.TryGetValue(ipAddress, out _))
             {
                 if (!_tokens[ipAddress].IsCancellationRequested)
                 {
@@ -38,14 +39,15 @@ namespace IndustrialMonitor.DataAcquisition.Services
             CancellationTokenSource _cts = new();
             _tokens[ipAddress] = _cts;
             _ = WriteInResisterAsync(ipAddress);
+
             return Task.CompletedTask;
         }
 
         public void StopCollectAsync(string ipAddress) 
         {
-            if (!_tokens.ContainsKey(ipAddress)) return;
-            _tokens[ipAddress].Cancel();
-            _tokens[ipAddress].Dispose();
+            if (!_tokens.TryGetValue(ipAddress,out var cts)) return;
+            cts.Cancel();
+            cts.Dispose();
             _tokens.Remove(ipAddress);
         }
 
@@ -60,6 +62,18 @@ namespace IndustrialMonitor.DataAcquisition.Services
                     DeviceDataModel deviceDataModels = await _deviceCommunicationService.CreateDataModel(ipAddress);
                     await _baseRepository.RecordData(deviceDataModels);
                     await Task.Delay(5000, _cts.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+                catch (IOException)
+                {
+                    return;
+                }
+                catch (SocketException)
+                {
+                    return;
                 }
                 catch (Exception ex)
                 {

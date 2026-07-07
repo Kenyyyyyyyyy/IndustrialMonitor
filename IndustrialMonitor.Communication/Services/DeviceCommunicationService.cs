@@ -155,11 +155,18 @@ namespace IndustrialMonitor.Communication.Services
         public async Task<DeviceDataModel> CreateDataModel(string ipAddress)
         {
             var result = await ReadHoldingRegistersAsync(ipAddress);
-            
+
+            if (result.Success == false)
+            {
+                throw new InvalidOperationException(result.ErrorMessage);
+            }
+            DateTime now = DateTime.Now;
+            DateTime time = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second);
+
             DeviceDataModel deviceDataModel = new()
             {
                 DeviceId = _connections[ipAddress].DeviceConfig.Id,
-                DateTime = DateTime.Now
+                DateTime = time
             };
 
             deviceDataModel.SetValues(result.Data);
