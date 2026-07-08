@@ -1,6 +1,7 @@
 ﻿using IndustrialMonitor.Communication.IServices;
 using IndustrialMonitor.Core.Models;
 using IndustrialMonitor.Modules.Dashboard.Tools;
+using IndustrialMonitor.Modules.Device.Tools;
 using Prism.Navigation.Regions;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,8 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 {
     public class DashboardWindowViewModel : BindableBase, IDialogAware
     {
+        private readonly IRegionManager _regionManager;
+        private IDeviceStorageService _deviceStorageService;
         public string Title { get; } = "设备详情";
 
         private CancellationTokenSource? _cts;
@@ -63,9 +66,12 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 
         private readonly IDeviceCommunicationService _deviceCommunicationService;
 
-        public DashboardWindowViewModel(IDeviceCommunicationService deviceCommunicationService)
+        public DashboardWindowViewModel(IDeviceCommunicationService deviceCommunicationService, IRegionManager regionManager, IDeviceStorageService deviceStorageService)
         {
             _deviceCommunicationService = deviceCommunicationService;
+            _regionManager = regionManager;
+            _deviceStorageService = deviceStorageService;
+
         }
 
         public DialogCloseListener RequestClose { get; }
@@ -88,7 +94,15 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             detailHelper.InitDeviceDetailItems();
            
             _ = StartCollectAsync();
-            
+
+
+
+            var navParams = new NavigationParameters
+            {
+                {"DeviceId", _deviceStorageService.GetDeviceIdAsync(IpAddress)}
+            };
+
+            _regionManager.RequestNavigate("GraphRegion", "LCGraphUserControl", navParams);
         }
 
 

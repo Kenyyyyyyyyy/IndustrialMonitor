@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace IndustrialMonitor.Modules.Device.Tools
 {
-    public class DeviceStorageService
+    public class DeviceStorageService: IDeviceStorageService
     {
 
         private readonly string _filePath;
@@ -43,6 +43,27 @@ namespace IndustrialMonitor.Modules.Device.Tools
             }
             return [];
 
+        }
+
+        public async Task<string> GetDeviceIdAsync(string ipAddress)
+        {
+            var json = await File.ReadAllTextAsync(_filePath);
+
+            List <DeviceConfigModel> deviceConfigModels = JsonSerializer.Deserialize<List<DeviceConfigModel>>(json) ?? [];
+
+            if (deviceConfigModels == null || deviceConfigModels.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            var deviceConfig = deviceConfigModels.Find(x => x.IpAddress == ipAddress);
+
+            if (deviceConfig == null)
+            {
+                return string.Empty;
+            }
+
+            return deviceConfig.Id.ToString();
         }
     }
 }

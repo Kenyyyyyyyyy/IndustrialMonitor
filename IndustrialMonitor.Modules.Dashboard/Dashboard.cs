@@ -1,6 +1,7 @@
 ﻿using IndustrialMonitor.Communication.IServices;
 using IndustrialMonitor.Communication.Services;
 using IndustrialMonitor.Modules.Dashboard.ViewModels;
+using IndustrialMonitor.Modules.Dashboard.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,8 @@ namespace IndustrialMonitor.Modules.Dashboard
             containerRegistry.RegisterForNavigation<DashboardView, DashboardViewModel>("DashboardView");
 
             containerRegistry.RegisterDialog<DashboardWindow,DashboardWindowViewModel>("DashboardWindow");
+
+            containerRegistry.RegisterForNavigation<LCGraphUserControl, LCGraphViewModel>("LCGraphUserControl");
 
             containerRegistry.RegisterSingleton<IDeviceCommunicationService,DeviceCommunicationService>();
         }

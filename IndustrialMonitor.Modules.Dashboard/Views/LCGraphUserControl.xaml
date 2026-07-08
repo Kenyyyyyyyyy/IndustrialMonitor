@@ -6,11 +6,32 @@
              xmlns:local="clr-namespace:IndustrialMonitor.Modules.Dashboard.Views"
              xmlns:lvc ="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              mc:Ignorable="d" 
-             d:DesignHeight="400" d:DesignWidth="400">
+             d:DesignHeight="500" d:DesignWidth="400">
+    
+    
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <WrapPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Button Content="温度" Width="60" Height="20" Margin="20" Command="{Binding ChangeValuesCommand}" CommandParameter="temputer" />
+            <Button Content="压力" Width="60" Height="20"             Command="{Binding ChangeValuesCommand}" CommandParameter="stress" />
+            <Button Content="产量" Width="60" Height="20" Margin="20" Command="{Binding ChangeValuesCommand}" CommandParameter="yield" />
+            <Button Content="运行状态" Width="60" Height="20"          Command="{Binding ChangeValuesCommand}" CommandParameter="status" />
+        </WrapPanel>
+        
+        <lvc:CartesianChart Grid.Row="1">
+            <lvc:CartesianChart.Series>
+                <lvc:SeriesCollection>
+                    <lvc:XamlLineSeries/>
+                    <lvc:XamlLineSeries/>
+                    <lvc:XamlLineSeries/>
+                    <lvc:XamlLineSeries/>
+                    <lvc:XamlLineSeries/>
 
-        <lvc:CartesianChart>
-            
+                </lvc:SeriesCollection>
+            </lvc:CartesianChart.Series>
         </lvc:CartesianChart>
         
     </Grid>
