@@ -8,6 +8,6 @@ namespace IndustrialMonitor.Modules.Device.Tools
 {
     public interface IDeviceStorageService
     {
-        public Task<string> GetDeviceIdAsync(string ipAddress);
+        public Task<Guid> GetDeviceIdAsync(string ipAddress);
     }
 }

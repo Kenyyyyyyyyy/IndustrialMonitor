@@ -1,7 +1,10 @@
 ﻿using IndustrialMonitor.Communication.IServices;
 using IndustrialMonitor.Communication.Services;
+using IndustrialMonitor.DataAcquisition.IServices;
+using IndustrialMonitor.DataAcquisition.Services;
 using IndustrialMonitor.Modules.Dashboard.ViewModels;
 using IndustrialMonitor.Modules.Dashboard.Views;
+using IndustrialMonitor.Modules.Device.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +29,10 @@ namespace IndustrialMonitor.Modules.Dashboard
             containerRegistry.RegisterForNavigation<LCGraphUserControl, LCGraphViewModel>("LCGraphUserControl");
 
             containerRegistry.RegisterSingleton<IDeviceCommunicationService,DeviceCommunicationService>();
+
+            containerRegistry.RegisterSingleton<IDeviceStorageService, DeviceStorageService>();
+
+            containerRegistry.RegisterSingleton<IGraphDataService,GraphDataService>();
         }
     }
 }

@@ -45,7 +45,7 @@ namespace IndustrialMonitor.Modules.Device.Tools
 
         }
 
-        public async Task<string> GetDeviceIdAsync(string ipAddress)
+        public async Task<Guid> GetDeviceIdAsync(string ipAddress)
         {
             var json = await File.ReadAllTextAsync(_filePath);
 
@@ -53,17 +53,17 @@ namespace IndustrialMonitor.Modules.Device.Tools
 
             if (deviceConfigModels == null || deviceConfigModels.Count == 0)
             {
-                return string.Empty;
+                return Guid.Empty;
             }
 
             var deviceConfig = deviceConfigModels.Find(x => x.IpAddress == ipAddress);
 
             if (deviceConfig == null)
             {
-                return string.Empty;
+                return Guid.Empty;
             }
 
-            return deviceConfig.Id.ToString();
+            return deviceConfig.Id;
         }
     }
 }

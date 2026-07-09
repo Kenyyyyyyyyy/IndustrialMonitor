@@ -1,6 +1,8 @@
-﻿using IndustrialMonitor.Core.IRepository;
+﻿using IndustrialMonitor.Core.GraphModels;
+using IndustrialMonitor.Core.IRepository;
 using IndustrialMonitor.Core.Models;
 using IndustrialMonitor.Core.SqlServer;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,5 +33,7 @@ namespace IndustrialMonitor.Core.Repository
                 }
             }
         }
+
+        
     }
 }

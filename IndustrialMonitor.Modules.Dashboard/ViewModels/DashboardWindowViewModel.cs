@@ -24,6 +24,7 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
         bool isCollecting = false;
         DetailHelper detailHelper = new();
         
+        public DelegateCommand OpenGraphCommand { get; }
 
         #region ObservableCollection<DeviceDetailModel>
 
@@ -66,12 +67,25 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 
         private readonly IDeviceCommunicationService _deviceCommunicationService;
 
-        public DashboardWindowViewModel(IDeviceCommunicationService deviceCommunicationService, IRegionManager regionManager, IDeviceStorageService deviceStorageService)
+        private NavigationParameters navParams;
+
+        public NavigationParameters NavParams
+        {
+            get { return navParams; }
+            set { navParams = value; }
+        }
+
+
+        public DashboardWindowViewModel(
+            IDeviceCommunicationService deviceCommunicationService, 
+            IRegionManager regionManager, 
+            IDeviceStorageService deviceStorageService)
         {
             _deviceCommunicationService = deviceCommunicationService;
             _regionManager = regionManager;
             _deviceStorageService = deviceStorageService;
 
+            OpenGraphCommand = new DelegateCommand(async () => await OpenGraphAsync());
         }
 
         public DialogCloseListener RequestClose { get; }
@@ -95,14 +109,24 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
            
             _ = StartCollectAsync();
 
+        }
 
-
-            var navParams = new NavigationParameters
+        public async Task OpenGraphAsync()
+        {
+            
+            NavParams = new NavigationParameters
             {
-                {"DeviceId", _deviceStorageService.GetDeviceIdAsync(IpAddress)}
+                {"DeviceId", await _deviceStorageService.GetDeviceIdAsync(IpAddress)}
             };
 
-            _regionManager.RequestNavigate("GraphRegion", "LCGraphUserControl", navParams);
+            _regionManager.RequestNavigate("GraphRegion", "LCGraphUserControl",
+                result =>
+                {
+                    if (result.Exception != null)
+                    {
+                        MessageBox.Show(result.Exception.Message);
+                    }
+                } ,NavParams);
         }
 
 

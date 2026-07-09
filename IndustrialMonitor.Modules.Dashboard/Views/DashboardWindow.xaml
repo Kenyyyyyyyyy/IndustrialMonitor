@@ -37,6 +37,10 @@
                     <TextBlock Text="{Binding IpAddress}" ></TextBlock>
                     <TextBlock Text="{Binding DeviceStatus}" Margin=" 10"></TextBlock>
                 </StackPanel>
+                <Button Grid.Column="1" Content="图表" Margin="5"
+                        VerticalAlignment="Top" HorizontalAlignment="Right" Height="20" Width="50"
+                        Command="{Binding OpenGraphCommand}"/>
+
 
             </Grid>
 

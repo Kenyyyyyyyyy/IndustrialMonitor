@@ -1,5 +1,4 @@
 ﻿using IndustrialMonitor.Core.GraphModels;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +7,8 @@ using System.Threading.Tasks;
 
 namespace IndustrialMonitor.Core.IRepository
 {
-    public interface IBaseRepository<T> where T : class
+    public interface IGraphDataRepository
     {
-        public Task RecordData(T entity);
-
-        public Task DelateByDevice(T entity);
-
-        
+        public Task<List<GraphDataModel>> GetDataByDeviceIdAndInterval(GraphRequestModel graphRequestModel);
     }
 }

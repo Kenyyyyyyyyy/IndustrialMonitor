@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IndustrialMonitor.Core.GraphModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace IndustrialMonitor.DataAcquisition.IServices
 {
     public interface IGraphDataService
     {
-        public Task<List<ushort>> GetGraphDataAsync(string DeviceId, string IntervalTime,List<string> RegisterAddress);
+        public Task<Dictionary<string, List<GraphDataModel>>> GetGraphDataAsync(Guid DeviceId, GraphInterval Interval, List<string> RegisterAddress);
+        
     }
 }

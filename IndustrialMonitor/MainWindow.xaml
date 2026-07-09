@@ -29,6 +29,8 @@
         </StackPanel>
 
         <ContentControl Grid.Column="1" 
-                        prism:RegionManager.RegionName="ContentRegion"></ContentControl>
+                        prism:RegionManager.RegionName="ContentRegion">
+            
+        </ContentControl>
     </Grid>
 </Window>

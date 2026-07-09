@@ -20,18 +20,12 @@
             <Button Content="产量" Width="60" Height="20" Margin="20" Command="{Binding ChangeValuesCommand}" CommandParameter="yield" />
             <Button Content="运行状态" Width="60" Height="20"          Command="{Binding ChangeValuesCommand}" CommandParameter="status" />
         </WrapPanel>
-        
-        <lvc:CartesianChart Grid.Row="1">
-            <lvc:CartesianChart.Series>
-                <lvc:SeriesCollection>
-                    <lvc:XamlLineSeries/>
-                    <lvc:XamlLineSeries/>
-                    <lvc:XamlLineSeries/>
-                    <lvc:XamlLineSeries/>
-                    <lvc:XamlLineSeries/>
 
-                </lvc:SeriesCollection>
-            </lvc:CartesianChart.Series>
+        <lvc:CartesianChart Grid.Row="1" 
+                    Series="{Binding Series}"
+                    XAxes="{Binding XAxes}"
+                    YAxes="{Binding YAxes}">
+            
         </lvc:CartesianChart>
         
     </Grid>

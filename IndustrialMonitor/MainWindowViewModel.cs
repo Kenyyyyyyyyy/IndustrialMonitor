@@ -8,7 +8,7 @@ namespace IndustrialMonitor
 {
     internal class MainWindowViewModel:BindableBase
     {
-        private readonly IRegionManager _RegionManager;
+        private readonly IRegionManager _regionManager;
 
         public DelegateCommand<string> NavigateCommand { get; }
 
@@ -16,11 +16,11 @@ namespace IndustrialMonitor
 
         public MainWindowViewModel(IRegionManager regionManager)
         {
-            _RegionManager = regionManager;
+            _regionManager = regionManager;
 
             NavigateCommand = new DelegateCommand<string>((region) =>
             {
-                regionManager.Regions["ContentRegion"].RequestNavigate(region);
+                _regionManager.Regions["ContentRegion"].RequestNavigate(region);
             });
         }
 
