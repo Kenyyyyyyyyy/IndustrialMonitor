@@ -60,15 +60,21 @@
 
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <WrapPanel VerticalAlignment="Center">
-                        <Button Content="{Binding}" 
-                                Command="{Binding DataContext.OpenDialogCmd,
-                                RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
-                                CommandParameter="{Binding}">
-                        </Button>
-                        
-                        
-                    </WrapPanel>
+                    <StackPanel>
+                        <WrapPanel VerticalAlignment="Center">
+                            <Button Content="{Binding}" 
+                                    Command="{Binding DataContext.OpenDialogCmd,
+                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                    CommandParameter="{Binding}">
+                            </Button>
+                            <Button Content="查看图表"
+                                    Command="{Binding DataContext.OpenGraphDialogCmd,
+                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    CommandParameter="{Binding}">
+                            </Button>
+                        </WrapPanel>
+                    </StackPanel>
+                    
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             

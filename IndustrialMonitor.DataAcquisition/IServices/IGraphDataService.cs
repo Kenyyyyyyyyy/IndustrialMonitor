@@ -9,7 +9,7 @@ namespace IndustrialMonitor.DataAcquisition.IServices
 {
     public interface IGraphDataService
     {
-        public Task<Dictionary<string, List<GraphDataModel>>> GetGraphDataAsync(Guid DeviceId, GraphInterval Interval, List<string> RegisterAddress);
+        public Task<Dictionary<string, List<GraphDataModel>>> GetGraphDataAsync(Guid DeviceId, GraphInterval Interval, Dictionary<string, string> RegisterAddress);
         
     }
 }

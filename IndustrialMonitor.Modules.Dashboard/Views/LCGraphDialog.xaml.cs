@@ -18,9 +18,9 @@ namespace IndustrialMonitor.Modules.Dashboard.Views
     /// <summary>
     /// LCGraphUserControl.xaml 的交互逻辑
     /// </summary>
-    public partial class LCGraphUserControl : UserControl
+    public partial class LCGraphDialog : UserControl
     {
-        public LCGraphUserControl()
+        public LCGraphDialog()
         {
             InitializeComponent();
         }

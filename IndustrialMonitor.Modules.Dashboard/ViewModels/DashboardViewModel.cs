@@ -20,6 +20,8 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
         private readonly IDeviceCommunicationService _deviceCommunicationService;
         public DelegateCommand<string> OpenDialogCmd { get; }
 
+        public DelegateCommand<string> OpenGraphDialogCmd { get; }
+
         public DashboardViewModel(IDialogService dialogService, IDeviceCommunicationService deviceCommunicationService)
         {
             _dialogService = dialogService;
@@ -30,6 +32,12 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
                 DialogParameters keyValuePairs = new(){{ "IpAddress", ipAddress }};
 
                 _dialogService.ShowDialog("DashboardWindow", keyValuePairs);
+            });
+
+            OpenGraphDialogCmd = new DelegateCommand<string>(ipAddress =>
+            {
+                DialogParameters keyValuePairs = new() { { "ipAddress", ipAddress } };
+                _dialogService.ShowDialog("LCGraphDialog", keyValuePairs);
             });
         }
 

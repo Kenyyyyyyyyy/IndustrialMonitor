@@ -20,7 +20,7 @@ namespace IndustrialMonitor.DataAcquisition.Services
             _graphDataRepository = graphDataRepository;
         }
 
-        public async Task<Dictionary<string, List<GraphDataModel>>> GetGraphDataAsync(Guid DeviceId, GraphInterval Interval, List<string> RegisterAddress)
+        public async Task<Dictionary<string, List<GraphDataModel>>> GetGraphDataAsync(Guid DeviceId, GraphInterval Interval, Dictionary<string,string> RegisterAddress)
         {
             
             var tasks = RegisterAddress.Select(async registerAddress => 
@@ -29,11 +29,12 @@ namespace IndustrialMonitor.DataAcquisition.Services
                 {
                     DeviceId = DeviceId,
                     Interval = Interval,
-                    RegisterAddress = registerAddress
+                    RegisterAddress = registerAddress.Value
                 };
 
                 List<GraphDataModel> graphDatas = await _graphDataRepository.GetDataByDeviceIdAndInterval(graphRequestModel);
-                RasiterDateValuePairs[registerAddress] = graphDatas;
+
+                RasiterDateValuePairs[registerAddress.Key] = graphDatas;
             });
 
             await Task.WhenAll(tasks);

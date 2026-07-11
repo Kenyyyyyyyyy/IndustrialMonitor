@@ -26,8 +26,6 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
     public class DashboardWindowViewModel : BindableBase, IDialogAware
     {
         
-        private IDeviceStorageService _deviceStorageService;
-        public IGraphDataService _graphDataService;
         private readonly IDeviceCommunicationService _deviceCommunicationService;
         
         public string Title { get; } = "设备详情";
@@ -35,35 +33,11 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
         private CancellationTokenSource? _cts;
         bool isCollecting = false;
         DetailHelper detailHelper = new();
-
-        
-        public DelegateCommand<string> ChangeValuesCommand { get; set; }
-
         
 
-        
-
-        private NavigationParameters navParams;
-
-        public NavigationParameters NavParams
-        {
-            get { return navParams; }
-            set { navParams = value; }
-        }
-
-        Dictionary<string, List<GraphDataModel>> ydatas;
-
-        public DashboardWindowViewModel(
-            IDeviceCommunicationService deviceCommunicationService, 
-            IRegionManager regionManager, 
-            IDeviceStorageService deviceStorageService,
-            IGraphDataService graphDataService)
+        public DashboardWindowViewModel(IDeviceCommunicationService deviceCommunicationService)
         {
             _deviceCommunicationService = deviceCommunicationService;
-            _deviceStorageService = deviceStorageService;
-            _graphDataService = graphDataService;
-
-            ChangeValuesCommand = new DelegateCommand<string>(async (Parameter) => await ChangeValues(Parameter));
         }
 
 
@@ -88,15 +62,10 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             detailHelper.InitDeviceDetailItems();
            
             _ = StartCollectAsync();
-            _ = getDeviceId(IpAddress);
-
-
+            
         }
 
-        public async Task getDeviceId(string ipAddress)
-        {
-            DeviceId = await _deviceStorageService.GetDeviceIdAsync(IpAddress);
-        }
+        
         #endregion
 
         #region CollectData
@@ -121,7 +90,7 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
                     DeviceDetails = detailHelper.DeviceDetails;
                     TemperatureItems = detailHelper.TemperatureItems;
                     ProcessItems = detailHelper.ProcessItems;
-                    ProductionItems = detailHelper.ProcessItems;
+                    ProductionItems = detailHelper.ProductionItems;
                     RunningItems = detailHelper.RunningItems;
 
                     DeviceStatus = DeviceDetails[0].Value;
@@ -219,129 +188,6 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 
         #endregion
 
-        #region GraphData
-
-        private async Task ChangeValues(string parameter)
-        {
-            if (ydatas != null) ydatas.Clear();
-            ydatas = new Dictionary<string, List<GraphDataModel>>();
-            switch (parameter)
-            {
-                case "temputer":
-
-                    ydatas = await _graphDataService.GetGraphDataAsync
-                        (DeviceId, GraphInterval.Hour, ["value05", "value06", "value07", "value08", "value09"]);
-                    break;
-
-                case "stress":
-
-                    ydatas = await _graphDataService.GetGraphDataAsync
-                        (DeviceId, GraphInterval.Hour, ["value10", "value11", "value12", "value13", "value14"]);
-                    break;
-
-                case "yield":
-
-                    ydatas = await _graphDataService.GetGraphDataAsync
-                        (DeviceId, GraphInterval.Hour, ["value15", "value16", "value17", "value18", "value19"]);
-                    break;
-
-                case "status":
-
-                    ydatas = await _graphDataService.GetGraphDataAsync
-                        (DeviceId, GraphInterval.Hour, ["value20", "value21", "value22", "value23", "value24"]);
-                    break;
-
-                default:
-                    break;
-            }
-
-            LoadChart(ydatas);
-        }
-
-        public void LoadChart(Dictionary<string, List<GraphDataModel>> ydatas)
-        {
-
-            Series = [];
-            var colors = new[]
-            {
-                SKColors.Blue,
-                SKColors.Red,
-                SKColors.Green,
-                SKColors.Orange,
-                SKColors.Purple
-            };
-
-            int index = 0;
-
-            Series = ydatas.Select(item =>
-            {
-                var color = colors[index % colors.Length];
-
-                var series = new LineSeries<double>
-                {
-                    Name = item.Key,
-                    Values = item.Value.Select(data => data.value).ToArray(),
-                    Stroke = new SolidColorPaint(color, 2),
-                    GeometryStroke = new SolidColorPaint(color, 2),
-                    GeometryFill = new SolidColorPaint(SKColors.White),
-                    GeometrySize = 8,
-                    LineSmoothness = 1,
-                };
-                index++;
-
-                return series;
-            }).ToArray();
-        }
-
-        #region propfulls
-
-        private Guid _deviceId;
-
-        public Guid DeviceId
-        {
-            get { return _deviceId; }
-            set { _deviceId = value; }
-        }
-
-        private List<int> _registersList;
-
-        public List<int> RegistersList
-        {
-            get { return _registersList; }
-            set { _registersList = value; }
-        }
-
-
-
-        #endregion
-
-        #region graph data
-
-        private ISeries[] _series;
-        public ISeries[] Series
-        {
-            get => _series;
-            set => SetProperty(ref _series, value);
-        }
-
-        private Axis[] _xAxes;
-        public Axis[] XAxes
-        {
-            get => _xAxes;
-            set => SetProperty(ref _xAxes, value);
-        }
-
-        private Axis[] _yAxes;
-        public Axis[] YAxes
-        {
-            get => _yAxes;
-            set => SetProperty(ref _yAxes, value);
-        }
-
-
-
-        #endregion
-
-        #endregion
+        
     }
 }

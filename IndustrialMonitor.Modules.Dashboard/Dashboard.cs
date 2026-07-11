@@ -27,8 +27,8 @@ namespace IndustrialMonitor.Modules.Dashboard
             containerRegistry.RegisterForNavigation<DashboardView, DashboardViewModel>("DashboardView");
 
             containerRegistry.RegisterDialog<DashboardWindow,DashboardWindowViewModel>("DashboardWindow");
+            containerRegistry.RegisterDialog<LCGraphDialog, LCGraphDialogViewModel>("LCGraphDialog");
 
-            
 
             containerRegistry.RegisterSingleton<IDeviceCommunicationService,DeviceCommunicationService>();
             containerRegistry.RegisterSingleton<IDeviceStorageService, DeviceStorageService>();
