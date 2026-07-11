@@ -1,9 +1,11 @@
 ﻿using IndustrialMonitor.Communication.IServices;
 using IndustrialMonitor.Core.Models;
 using NModbus;
+using NModbus.Device;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -53,8 +55,45 @@ namespace IndustrialMonitor.Communication.Services
                 tcpClient = _tcpClient,
                 modbusMaster = factory.CreateMaster(_tcpClient),
                 IsConnected = true,
-                DeviceConfig = deviceConfig
+                DeviceConfig = deviceConfig,
+                
             };
+
+            _connections[deviceConfig.IpAddress].modbusMaster.Transport.ReadTimeout = 1000;
+            _connections[deviceConfig.IpAddress].modbusMaster.Transport.WriteTimeout = 1000;
+            _connections[deviceConfig.IpAddress].modbusMaster.Transport.Retries = 0;
+
+
+
+
+            try
+            {
+                await Task.Run(() =>
+                _connections[deviceConfig.IpAddress].modbusMaster.ReadHoldingRegisters(deviceConfig.SlaveId,deviceConfig.StartAddress,1));
+                
+            }
+            catch(IOException ex)
+            {
+                DisconnectAsync(deviceConfig);
+
+                return new DeviceConnectionResult
+                {
+                    IsConnected = false,
+                    Status = "IOException",
+                    ErrorMessage = ex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                DisconnectAsync(deviceConfig);
+
+                return new DeviceConnectionResult
+                {
+                    IsConnected = false,
+                    Status = "Modbus验证失败",
+                    ErrorMessage = ex.Message
+                };
+            }
 
             return new DeviceConnectionResult
             {

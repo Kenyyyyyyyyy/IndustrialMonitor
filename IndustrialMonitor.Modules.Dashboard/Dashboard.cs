@@ -1,5 +1,7 @@
 ﻿using IndustrialMonitor.Communication.IServices;
 using IndustrialMonitor.Communication.Services;
+using IndustrialMonitor.Core.IRepository;
+using IndustrialMonitor.Core.Repository;
 using IndustrialMonitor.DataAcquisition.IServices;
 using IndustrialMonitor.DataAcquisition.Services;
 using IndustrialMonitor.Modules.Dashboard.ViewModels;
@@ -26,13 +28,12 @@ namespace IndustrialMonitor.Modules.Dashboard
 
             containerRegistry.RegisterDialog<DashboardWindow,DashboardWindowViewModel>("DashboardWindow");
 
-            containerRegistry.RegisterForNavigation<LCGraphUserControl, LCGraphViewModel>("LCGraphUserControl");
+            
 
             containerRegistry.RegisterSingleton<IDeviceCommunicationService,DeviceCommunicationService>();
-
             containerRegistry.RegisterSingleton<IDeviceStorageService, DeviceStorageService>();
-
             containerRegistry.RegisterSingleton<IGraphDataService,GraphDataService>();
+            containerRegistry.RegisterSingleton<IGraphDataRepository,GraphDataRepository>();
         }
     }
 }

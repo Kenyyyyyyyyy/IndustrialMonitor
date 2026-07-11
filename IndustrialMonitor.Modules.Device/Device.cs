@@ -5,6 +5,7 @@ using IndustrialMonitor.Core.Models;
 using IndustrialMonitor.Core.Repository;
 using IndustrialMonitor.DataAcquisition.IServices;
 using IndustrialMonitor.DataAcquisition.Services;
+using IndustrialMonitor.Modules.Device.Tools;
 using IndustrialMonitor.Modules.Device.ViewModels;
 using IndustrialMonitor.Modules.Device.Views;
 using System;
@@ -28,6 +29,7 @@ namespace IndustrialMonitor.Modules.Device
             containerRegistry.RegisterDialog<DeviceAddWindow,DeviceAddWindowViewModel>();
 
             containerRegistry.RegisterSingleton<IDeviceCommunicationService, DeviceCommunicationService>();
+            
             containerRegistry.RegisterSingleton<IAcquisitionService, AcquisitionService>();
             containerRegistry.RegisterSingleton<IBaseRepository<DeviceDataModel>,BaseReposity>();
         }

@@ -18,16 +18,17 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
     {
         private readonly IDialogService _dialogService;
         private readonly IDeviceCommunicationService _deviceCommunicationService;
-        public DelegateCommand<string> OpenDetailCmd { get; }
+        public DelegateCommand<string> OpenDialogCmd { get; }
 
         public DashboardViewModel(IDialogService dialogService, IDeviceCommunicationService deviceCommunicationService)
         {
             _dialogService = dialogService;
             _deviceCommunicationService = deviceCommunicationService;
 
-            OpenDetailCmd = new DelegateCommand<string>(ipAddress =>
+            OpenDialogCmd = new DelegateCommand<string>(ipAddress =>
             {
                 DialogParameters keyValuePairs = new(){{ "IpAddress", ipAddress }};
+
                 _dialogService.ShowDialog("DashboardWindow", keyValuePairs);
             });
         }

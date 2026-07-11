@@ -10,6 +10,6 @@ namespace IndustrialMonitor.Core.GraphModels
     {
         public DateTime dateTime;
 
-        public ushort value;
+        public double value;
     }
 }

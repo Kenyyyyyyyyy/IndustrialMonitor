@@ -62,7 +62,7 @@
                 <DataTemplate>
                     <WrapPanel VerticalAlignment="Center">
                         <Button Content="{Binding}" 
-                                Command="{Binding DataContext.OpenDetailCmd,
+                                Command="{Binding DataContext.OpenDialogCmd,
                                 RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
                                 CommandParameter="{Binding}">
                         </Button>
