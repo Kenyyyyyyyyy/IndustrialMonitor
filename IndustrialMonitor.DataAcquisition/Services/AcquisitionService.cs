@@ -17,14 +17,16 @@ namespace IndustrialMonitor.DataAcquisition.Services
     {
         private readonly IBaseRepository<DeviceDataModel> _baseRepository;
         private readonly IDeviceCommunicationService _deviceCommunicationService;
+        private readonly IModbusSimulationService _modbusSimulationService;
 
         public readonly Dictionary<string, CancellationTokenSource> _tokens = [];
 
 
-        public AcquisitionService(IBaseRepository<DeviceDataModel> baseRepository, IDeviceCommunicationService deviceCommunicationService) 
+        public AcquisitionService(IBaseRepository<DeviceDataModel> baseRepository, IDeviceCommunicationService deviceCommunicationService, IModbusSimulationService modbusSimulationService) 
         {
-            _baseRepository = baseRepository;
+            _baseRepository             = baseRepository;
             _deviceCommunicationService = deviceCommunicationService;
+            _modbusSimulationService    = modbusSimulationService;
         }
 
         public Task StartCollectAsync(string ipAddress)
@@ -61,7 +63,8 @@ namespace IndustrialMonitor.DataAcquisition.Services
                 {
                     DeviceDataModel deviceDataModels = await _deviceCommunicationService.CreateDataModel(ipAddress);
                     await _baseRepository.RecordData(deviceDataModels);
-                    await Task.Delay(5000, _cts.Token);
+                    _ = _modbusSimulationService.StartSimulation(ipAddress);
+                    await Task.Delay(10000, _cts.Token);
                 }
                 catch (OperationCanceledException)
                 {

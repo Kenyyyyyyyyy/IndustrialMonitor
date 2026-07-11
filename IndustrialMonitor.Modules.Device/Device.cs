@@ -29,6 +29,7 @@ namespace IndustrialMonitor.Modules.Device
             containerRegistry.RegisterDialog<DeviceAddWindow,DeviceAddWindowViewModel>();
 
             containerRegistry.RegisterSingleton<IDeviceCommunicationService, DeviceCommunicationService>();
+            containerRegistry.RegisterSingleton<IModbusSimulationService,ModbusSimulationService>();
             
             containerRegistry.RegisterSingleton<IAcquisitionService, AcquisitionService>();
             containerRegistry.RegisterSingleton<IBaseRepository<DeviceDataModel>,BaseReposity>();

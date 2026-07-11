@@ -30,7 +30,6 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             OpenDialogCmd = new DelegateCommand<string>(ipAddress =>
             {
                 DialogParameters keyValuePairs = new(){{ "IpAddress", ipAddress }};
-
                 _dialogService.ShowDialog("DashboardWindow", keyValuePairs);
             });
 
@@ -63,7 +62,6 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
         }
 
         #endregion
-
 
 
 
@@ -105,8 +103,8 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 
         public ObservableCollection<string> Conlist
         {
-            get { return _conList; }
-            set { _conList = value; }
+            get => _conList; 
+            set => SetProperty(ref _conList, value);
         }
 
 

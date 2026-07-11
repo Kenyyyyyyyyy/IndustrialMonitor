@@ -3,6 +3,7 @@ using IndustrialMonitor.DataAcquisition.IServices;
 using IndustrialMonitor.DataAcquisition.Services;
 using IndustrialMonitor.Modules.Device.Tools;
 using LiveChartsCore;
+using LiveChartsCore.Measure;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
@@ -24,6 +25,8 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 
         public DelegateCommand<string> ChangeValuesCommand { get; set; }
 
+        
+
         Dictionary<string, List<GraphDataModel>> ydatas = [];
 
         public string Title { get; } = "数据分析";
@@ -35,8 +38,6 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 
             ChangeValuesCommand = new DelegateCommand<string>(async (Parameter) => await ChangeValues(Parameter));
 
-            _ = getDeviceId(IpAddress);
-            if (ydatas == null || ydatas.Count == 0) _ = ChangeValues("temputer");
         }
 
         #region IDialogAware
@@ -56,7 +57,15 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
         public void OnDialogOpened(IDialogParameters parameters)
         {
             IpAddress = parameters.GetValue<string>("ipAddress");
+            _ = getDeviceId(IpAddress);
+
             
+        }
+
+        public async Task getDeviceId(string ipAddress)
+        {
+            DeviceId = await _deviceStorageService.GetDeviceIdAsync(ipAddress);
+            if (ydatas == null || ydatas.Count == 0) _ = ChangeValues("temputer");
         }
 
         #endregion
@@ -66,6 +75,8 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
         private async Task ChangeValues(string parameter)
         {
             if (ydatas.Count != 0) ydatas.Clear();
+            XAxes = [];
+            YAxes = [];
             ydatas = new Dictionary<string, List<GraphDataModel>>();
             switch (parameter)
             {
@@ -145,6 +156,7 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
                     GeometryFill = new SolidColorPaint(SKColors.White),
                     GeometrySize = 8,
                     LineSmoothness = 1,
+                    ScalesYAt = index,
                 };
                 index++;
 
@@ -167,6 +179,25 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
                     NamePadding = new LiveChartsCore.Drawing.Padding(0, 10, 0, 0)
                 }
             ];
+
+            index = 0;
+
+            YAxes = ydatas.Select(data =>
+            {
+                var color = colors[index % colors.Length];
+                var position = index % 2 == 0 ? AxisPosition.Start : AxisPosition.End;
+
+                var Yaxe = new Axis
+                {
+                    LabelsPaint = new SolidColorPaint(color, 1),
+                    LabelsRotation = 0,
+                    TextSize = 10,
+                    Position = position,
+                };
+                index += 1;
+
+                return Yaxe;
+            }).ToArray();
         }
 
         #region propfulls
@@ -220,10 +251,7 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 
         #endregion
 
-        public async Task getDeviceId(string ipAddress)
-        {
-            DeviceId = await _deviceStorageService.GetDeviceIdAsync(IpAddress);
-        }
+        
 
         private string _ipAddress;
 

@@ -22,5 +22,6 @@ namespace IndustrialMonitor.Communication.IServices
 
         public Task<DeviceDataModel> CreateDataModel(string ipAddress);
 
+        Task WriteRegisterAsync(string ipAddress, ushort startAddress, ushort[] values);
     }
 }

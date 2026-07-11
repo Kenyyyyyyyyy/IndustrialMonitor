@@ -190,7 +190,6 @@ namespace IndustrialMonitor.Communication.Services
 
         }
 
-
         public async Task<DeviceDataModel> CreateDataModel(string ipAddress)
         {
             var result = await ReadHoldingRegistersAsync(ipAddress);
@@ -211,6 +210,21 @@ namespace IndustrialMonitor.Communication.Services
             deviceDataModel.SetValues(result.Data);
 
             return deviceDataModel;
+        }
+
+        public Task WriteRegisterAsync(string ipAddress,ushort startAddress,ushort[] values)
+        {
+            if (!_connections.TryGetValue(ipAddress, out var connection))
+            {
+                throw new InvalidOperationException($"设备未连接：{ipAddress}");
+            }
+
+            connection.modbusMaster.WriteMultipleRegisters(
+                connection.DeviceConfig.SlaveId,
+                startAddress,
+                values);
+
+            return Task.CompletedTask;
         }
     }
 }

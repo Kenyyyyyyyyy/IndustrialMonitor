@@ -30,6 +30,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
         private IDeviceCommunicationService DeviceCommunicationService { get; }
         private IAcquisitionService _acquisitionservice { get; }
+
         public DeviceItemViewModel(DeviceConfigModel configModel, 
                                    IDeviceCommunicationService deviceCommunicationService, 
                                    IAcquisitionService acquisitionService)
@@ -37,6 +38,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
             ConfigModel = configModel;
             DeviceCommunicationService = deviceCommunicationService;
             _acquisitionservice = acquisitionService;
+
             _ = ConnectAsync();
 
             ConnectCommand = new(async () => await ConnectAsync());
