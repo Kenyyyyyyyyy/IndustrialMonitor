@@ -11,9 +11,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Markup;
+using Windows.Foundation.Metadata;
 
 namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 {
@@ -23,7 +25,9 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
         public IGraphDataService _graphDataService;
         private IDeviceStorageService _deviceStorageService;
 
-        public DelegateCommand<string> ChangeValuesCommand { get; set; }
+        public DelegateCommand<string> ChangeItemCommand { get; set; }
+
+        public DelegateCommand<string> ChangeIntervalCommand { get; set; }
 
         
 
@@ -36,7 +40,39 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             _graphDataService = graphDataService;
             _deviceStorageService = deviceStorageService;
 
-            ChangeValuesCommand = new DelegateCommand<string>(async (Parameter) => await ChangeValues(Parameter));
+            ChangeItemCommand = new DelegateCommand<string>(async (parameter) =>
+            {
+                GraphItem = parameter;
+                await ChangeValues();
+            });
+
+            ChangeIntervalCommand = new DelegateCommand<string>(async parameter =>
+            {
+                switch (parameter)
+                {
+                    case "min":
+                        GraphInterval = GraphInterval.Min;
+                        await ChangeValues();
+                        break;
+                    case "hour":
+                        GraphInterval = GraphInterval.Hour;
+                        await ChangeValues();
+                        break;
+                    case "day":
+                        GraphInterval = GraphInterval.Day;
+                        await ChangeValues();
+                        break;
+                    case "week":
+                        GraphInterval = GraphInterval.Week;
+                        await ChangeValues();
+                        break;
+                    case "month":
+                        GraphInterval = GraphInterval.Month;
+                        await ChangeValues();
+                        break;
+                }
+            });
+
 
         }
 
@@ -65,23 +101,27 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
         public async Task getDeviceId(string ipAddress)
         {
             DeviceId = await _deviceStorageService.GetDeviceIdAsync(ipAddress);
-            if (ydatas == null || ydatas.Count == 0) _ = ChangeValues("temputer");
+            if (ydatas == null || ydatas.Count == 0)
+            {
+                GraphItem = "temputer";
+                _ = ChangeValues();
+            }
         }
 
         #endregion
 
         #region GraphData
 
-        private async Task ChangeValues(string parameter)
+        private async Task ChangeValues()
         {
             if (ydatas.Count != 0) ydatas.Clear();
             XAxes = [];
             YAxes = [];
             ydatas = new Dictionary<string, List<GraphDataModel>>();
-            switch (parameter)
+            switch (GraphItem)
             {
                 case "temputer":
-                    ydatas = await _graphDataService.GetGraphDataAsync(DeviceId, GraphInterval.Hour, new Dictionary<string, string>
+                    ydatas = await _graphDataService.GetGraphDataAsync(DeviceId, GraphInterval, new Dictionary<string, string>
                         {{ "模具温度", "value05" },
                         { "料筒一段温度" , "value06" },
                         { "料筒二段温度" , "value07" },
@@ -89,9 +129,9 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
                         { "设定模具温度" , "value09" }});
                     break;
 
-                case "stress":
 
-                    ydatas = await _graphDataService.GetGraphDataAsync(DeviceId, GraphInterval.Hour, new Dictionary<string, string>
+                case "stress":
+                    ydatas = await _graphDataService.GetGraphDataAsync(DeviceId, GraphInterval, new Dictionary<string, string>
                         {{ "注射压力", "value10" },
                         { "保压压力" , "value11" },
                         { "锁模力" , "value12" },
@@ -99,10 +139,10 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
                         { "螺杆转速" , "value14" }});
                     break;
 
-                case "yield":
 
+                case "yield":
                     ydatas = await _graphDataService.GetGraphDataAsync
-                        (DeviceId, GraphInterval.Hour, new Dictionary<string, string>
+                        (DeviceId, GraphInterval, new Dictionary<string, string>
                         {{ "今日产量", "value15" },
                         { "良品数量" , "value16" },
                         { "不良品数量" , "value17" },
@@ -110,10 +150,10 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
                         { "当前班次产量" , "value19" }});
                     break;
 
-                case "status":
 
+                case "status":
                     ydatas = await _graphDataService.GetGraphDataAsync
-                        (DeviceId, GraphInterval.Hour, new Dictionary<string, string>
+                        (DeviceId, GraphInterval, new Dictionary<string, string>
                         {{ "当前循环周期", "value20" },
                         { "标准循环周期" , "value21" },
                         { "运行时间" , "value22" },
@@ -165,7 +205,7 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 
 
 
-            List<string> xlables = ydatas.FirstOrDefault().Value.Select(data => data.dateTime.ToString("HH:mm:ss")).ToList();
+            List<string> xlables = GetXLables(ydatas.FirstOrDefault().Value);
 
             XAxes =
             [
@@ -193,11 +233,26 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
                     LabelsRotation = 0,
                     TextSize = 10,
                     Position = position,
+                    ShowSeparatorLines = false,
+                    Padding = new LiveChartsCore.Drawing.Padding(5,10,5,10),
                 };
                 index += 1;
 
                 return Yaxe;
             }).ToArray();
+        }
+
+        public List<string> GetXLables(List<GraphDataModel> graphDataModels)
+        {
+            return GraphInterval switch
+            {
+                GraphInterval.Min => graphDataModels.Select(data => data.dateTime.ToString("HH:mm")).ToList(),
+                GraphInterval.Hour => graphDataModels.Select(data => data.dateTime.ToString("HH:mm")).ToList(),
+                GraphInterval.Day => graphDataModels.Select(data => data.dateTime.ToString("M.d")).ToList(),
+                GraphInterval.Week => graphDataModels.Select(data => data.dateTime.ToString("M.d")).ToList(),
+                GraphInterval.Month => graphDataModels.Select(data => data.dateTime.ToString("yy.M")).ToList(),
+                _ => graphDataModels.Select(data => data.dateTime.ToString("HH:mm")).ToList()
+            };
         }
 
         #region propfulls
@@ -218,7 +273,28 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             set { _registersList = value; }
         }
 
+        private GraphInterval _graphInterval = GraphInterval.Min;
 
+        public GraphInterval GraphInterval
+        {
+            get { return _graphInterval; }
+            set { _graphInterval = value; }
+        }
+
+        private string _graphItem = "temputer";
+
+        public string GraphItem
+        {
+            get { return _graphItem; }
+            set { _graphItem = value; }
+        }
+
+        private string _ipAddress;
+        public string IpAddress
+        {
+            get => _ipAddress;
+            set => SetProperty(ref _ipAddress, value);
+        }
 
         #endregion
 
@@ -253,12 +329,6 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 
         
 
-        private string _ipAddress;
-
-        public string IpAddress
-        {
-            get => _ipAddress;
-            set => SetProperty(ref _ipAddress, value);
-        }
+        
     }
 }

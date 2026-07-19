@@ -22,7 +22,7 @@ namespace IndustrialMonitor.Core.Repository
             if (register == null) throw new Exception("RegisterAddress or Interval is null");
 
             DateTime endTime = DateTime.Now;
-            DateTime startTime = endTime.AddHours(-24);
+            DateTime startTime = GetStartTime(endTime, interval);
 
 
             var extradata = await context.DeviceDataModels
@@ -32,24 +32,63 @@ namespace IndustrialMonitor.Core.Repository
                 {
                     x.DateTime,
                     Value =  EF.Property<double>(x, register)
-                }).ToListAsync();
+                })
+                .ToListAsync();
 
             var data = extradata
-                .GroupBy(x => new { x.DateTime.Year, x.DateTime.Month, x.DateTime.Day, x.DateTime.Hour })
+                .GroupBy(x => GetTimeBucket(x.DateTime, interval))
                 .Select(g => new GraphDataModel
                 {
-                    dateTime = new DateTime
-                    (
-                        g.Key.Year,
-                        g.Key.Month,
-                        g.Key.Day,
-                        g.Key.Hour,
-                        0,
-                        0),
-                    value = g.Average(x => x.Value)
-                }).OrderBy(x => x.dateTime).ToList();
+                    dateTime = g.Key,
+                    value = Math.Round(g.Average(x => x.Value),0)
+                })
+                .OrderBy(x => x.dateTime)
+                .ToList();
 
             return data;
         }
+
+        private static DateTime GetStartTime(DateTime endTime, GraphInterval interval)
+        {
+            return interval switch
+            {
+                GraphInterval.Min => endTime.AddMinutes(-30),   
+                GraphInterval.Hour => endTime.AddHours(-12),    
+                GraphInterval.Day => endTime.AddDays(-10),      
+                GraphInterval.Week => endTime.AddDays(-84),     
+                GraphInterval.Month => endTime.AddMonths(-12),  
+                _ => endTime.AddHours(-12)
+            };
+        }
+
+        private static DateTime GetTimeBucket(DateTime time, GraphInterval interval)
+        {
+            return interval switch
+            {
+                // 例如 10:35:42、10:35:58 都归到 10:35:00
+                GraphInterval.Min => new DateTime(
+                    time.Year, time.Month, time.Day,
+                    time.Hour, time.Minute, 0),
+
+                // 同一小时归为一点
+                GraphInterval.Hour => new DateTime(
+                    time.Year, time.Month, time.Day,
+                    time.Hour, 0, 0),
+
+                // 同一天归为一点
+                GraphInterval.Day => time.Date,
+
+                // 每周一作为一周的起点
+                GraphInterval.Week => time.Date.AddDays(
+                    -((int)time.DayOfWeek + 6) % 7),
+
+                // 每月 1 日作为一个月的起点
+                GraphInterval.Month => new DateTime(
+                    time.Year, time.Month, 1),
+
+                _ => time
+            };
+        }
+
     }
 }

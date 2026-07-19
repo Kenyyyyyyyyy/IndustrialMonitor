@@ -29,17 +29,22 @@
         </Grid.RowDefinitions>
         <StackPanel>
             <WrapPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Button Content="温度" Width="60" Height="20" Margin="20" Command="{Binding ChangeValuesCommand}" CommandParameter="temputer" />
-                <Button Content="压力" Width="60" Height="20"             Command="{Binding ChangeValuesCommand}" CommandParameter="stress" />
-                <Button Content="产量" Width="60" Height="20" Margin="20" Command="{Binding ChangeValuesCommand}" CommandParameter="yield" />
-                <Button Content="运行状态" Width="60" Height="20"          Command="{Binding ChangeValuesCommand}" CommandParameter="status" />
+                <Button Content="温度" Width="60" Height="20" Margin="20" Command="{Binding ChangeItemCommand}" CommandParameter="temputer" />
+                <Button Content="压力" Width="60" Height="20"             Command="{Binding ChangeItemCommand}" CommandParameter="stress" />
+                <Button Content="产量" Width="60" Height="20" Margin="20" Command="{Binding ChangeItemCommand}" CommandParameter="yield" />
+                <Button Content="运行状态" Width="60" Height="20"          Command="{Binding ChangeItemCommand}" CommandParameter="status" />
             </WrapPanel>
             <WrapPanel VerticalAlignment="Center" HorizontalAlignment="Center" >
-                <RadioButton GroupName="interval" Margin="10,0,10,0"  IsChecked="True" >分</RadioButton>
-                <RadioButton GroupName="interval" Margin="10,0,10,0">时</RadioButton>
-                <RadioButton GroupName="interval" Margin="10,0,10,0">天</RadioButton>
-                <RadioButton GroupName="interval" Margin="10,0,10,0">周</RadioButton>
-                <RadioButton GroupName="interval" Margin="10,0,10,0">月</RadioButton>
+                <RadioButton GroupName="interval" Margin="10,0,10,0" IsChecked="True" 
+                             Command="{Binding ChangeIntervalCommand}" CommandParameter="min">   分 </RadioButton>
+                <RadioButton GroupName="interval" Margin="10,0,10,0" 
+                             Command="{Binding ChangeIntervalCommand}" CommandParameter="hour">  时 </RadioButton>
+                <RadioButton GroupName="interval" Margin="10,0,10,0" 
+                             Command="{Binding ChangeIntervalCommand}" CommandParameter="day">   天 </RadioButton>
+                <RadioButton GroupName="interval" Margin="10,0,10,0"
+                             Command="{Binding ChangeIntervalCommand}" CommandParameter="week">  周 </RadioButton>
+                <RadioButton GroupName="interval" Margin="10,0,10,0" 
+                             Command="{Binding ChangeIntervalCommand}" CommandParameter="month"> 月 </RadioButton>
             </WrapPanel>
         </StackPanel>
        

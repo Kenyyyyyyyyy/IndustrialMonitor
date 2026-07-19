@@ -8,6 +8,7 @@ namespace IndustrialMonitor.Core.GraphModels
 {
     public enum GraphInterval
     {
+        Min,
         Hour,
         Day,
         Week,

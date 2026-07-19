@@ -20,7 +20,8 @@ namespace IndustrialMonitor.DataAcquisition.Services
             _graphDataRepository = graphDataRepository;
         }
 
-        public async Task<Dictionary<string, List<GraphDataModel>>> GetGraphDataAsync(Guid DeviceId, GraphInterval Interval, Dictionary<string,string> RegisterAddress)
+        public async Task<Dictionary<string, List<GraphDataModel>>> GetGraphDataAsync
+            (Guid DeviceId, GraphInterval Interval, Dictionary<string,string> RegisterAddress)
         {
             
             var tasks = RegisterAddress.Select(async registerAddress => 
