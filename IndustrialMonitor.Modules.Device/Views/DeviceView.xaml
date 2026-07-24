@@ -22,6 +22,11 @@
                 <Button Content="刷新连接" Command="{Binding LoadDeviceCmd}"
                         Width="60" Height="20" HorizontalAlignment="Left" Margin="10">
                 </Button>
+
+                <Button Content="连接PLC" Command="{Binding PLCConnectCmd}"
+                        Width="60" Height="20" HorizontalAlignment="Left" Margin="10">
+                    
+                </Button>
             </WrapPanel>
             
             

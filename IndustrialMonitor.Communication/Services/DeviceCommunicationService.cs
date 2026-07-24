@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -16,7 +17,14 @@ namespace IndustrialMonitor.Communication.Services
 {
     public class DeviceCommunicationService : IDeviceCommunicationService
     {
+
         private readonly Dictionary<string, ModbusConnectionModel> _connections = [];
+
+        public Dictionary<string, ModbusConnectionModel> Connections
+        {
+            get { return _connections; }
+        }
+
 
         public async Task<DeviceConnectionResult> ConnectAsync(DeviceConfigModel deviceConfig)
         {
@@ -140,9 +148,9 @@ namespace IndustrialMonitor.Communication.Services
             {
                 ushort[] registers = await Task.Run(
                     () => connection.modbusMaster.ReadHoldingRegisters
-                    (_connections[ipAddress].DeviceConfig.SlaveId,
-                    _connections[ipAddress].DeviceConfig.StartAddress,
-                    _connections[ipAddress].DeviceConfig.NumberOfPoints));
+                    (connection.DeviceConfig.SlaveId,
+                    connection.DeviceConfig.StartAddress,
+                    connection.DeviceConfig.NumberOfPoints));
                 return new ReadRegistersResult
                 {
                     Success = true,
@@ -187,7 +195,6 @@ namespace IndustrialMonitor.Communication.Services
             }
 
             return conlist;
-
         }
 
         public async Task<DeviceDataModel> CreateDataModel(string ipAddress)
@@ -225,6 +232,28 @@ namespace IndustrialMonitor.Communication.Services
                 values);
 
             return Task.CompletedTask;
+        }
+
+        public int GetYield()
+        {
+            int Allyield = 0;
+
+            foreach (var connectionModel in Connections.Values)
+            {
+                try 
+                {
+                    ushort[] registers = connectionModel.modbusMaster.ReadHoldingRegisters
+                    (connectionModel.DeviceConfig.SlaveId, 15, 1);
+                    ushort value = registers[0];
+                    Allyield += value;
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+
+            return Allyield;
         }
     }
 }

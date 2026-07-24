@@ -19,8 +19,10 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
         private readonly IDialogService _dialogService;
         private readonly IDeviceCommunicationService _deviceCommunicationService;
         public DelegateCommand<string> OpenDialogCmd { get; }
-
         public DelegateCommand<string> OpenGraphDialogCmd { get; }
+
+        private CancellationTokenSource? _cts;
+        bool isCollecting = false;
 
         public DashboardViewModel(IDialogService dialogService, IDeviceCommunicationService deviceCommunicationService)
         {
@@ -49,6 +51,8 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
             GetIpAsync();
+            _cts = new CancellationTokenSource();
+            _ = StartCollectAsync();
         }
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
@@ -58,10 +62,39 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 
         public void OnNavigatedFrom(NavigationContext navigationContext)
         {
-            
+            StopCollect();
         }
 
         #endregion
+
+        public async Task StartCollectAsync() 
+        {
+            
+            if (_cts == null) return;
+            CancellationToken cancellationToken = _cts.Token;
+            while (!cancellationToken.IsCancellationRequested) 
+            {
+                try
+                {
+                    TodayOutput = _deviceCommunicationService.GetYield();
+                    await Task.Delay(1000, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    StopCollect();
+                    MessageBox.Show(ex.Message);
+                }
+                
+            }
+        }
+
+        public void StopCollect()
+        {
+            if(!isCollecting) return;
+            _cts?.Cancel();
+            _cts?.Dispose();
+            isCollecting = false;
+        }
 
 
 

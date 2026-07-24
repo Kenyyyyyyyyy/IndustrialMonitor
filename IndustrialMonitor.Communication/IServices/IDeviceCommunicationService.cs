@@ -10,6 +10,9 @@ namespace IndustrialMonitor.Communication.IServices
 {
     public interface IDeviceCommunicationService
     {
+        //IReadOnlyDictionary<string, ModbusConnectionModel> Connections { get; }
+
+        public Dictionary<string, ModbusConnectionModel> Connections { get; }
         public Task<DeviceConnectionResult> ConnectAsync(DeviceConfigModel deviceConfig);
 
         public DeviceConnectionResult DisconnectAsync(DeviceConfigModel deviceConfig);
@@ -23,5 +26,7 @@ namespace IndustrialMonitor.Communication.IServices
         public Task<DeviceDataModel> CreateDataModel(string ipAddress);
 
         Task WriteRegisterAsync(string ipAddress, ushort startAddress, ushort[] values);
+
+        public int GetYield();
     }
 }

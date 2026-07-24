@@ -33,6 +33,8 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 
         Dictionary<string, List<GraphDataModel>> ydatas = [];
 
+        
+
         public string Title { get; } = "数据分析";
 
         public LCGraphDialogViewModel(IGraphDataService graphDataService, IDeviceStorageService deviceStorageService)
@@ -75,6 +77,7 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
 
 
         }
+        
 
         #region IDialogAware
         public DialogCloseListener RequestClose { get; }

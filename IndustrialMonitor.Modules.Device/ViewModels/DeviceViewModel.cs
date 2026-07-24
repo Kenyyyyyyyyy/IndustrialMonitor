@@ -24,6 +24,8 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         private readonly IDeviceCommunicationService _deviceComunicationService;
         private readonly IAcquisitionService _acquisitionService;
 
+        private readonly IS7CommunicationService _s7CommunicationService;
+
         public DelegateCommand LoadDeviceCmd { get; }
         public DelegateCommand OpenAddCmd { get; }
 
@@ -32,6 +34,8 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         public DelegateCommand<DeviceItemViewModel> UpdataCommand { get; }
         public DelegateCommand<DeviceItemViewModel> DeleteCommand { get; }
 
+        public DelegateCommand PLCConnectCmd { get; }
+
         public ObservableCollection<DeviceItemViewModel> Devices { get; } = [];
         public List<DeviceConfigModel> DeviceConfigModels = [];
 
@@ -39,12 +43,14 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         public DeviceViewModel(IDialogService dialogService,
                                IEventAggregator eventAggregator,
                                IDeviceCommunicationService deviceCommunicationService,
-                               IAcquisitionService acquisitionService)
+                               IAcquisitionService acquisitionService,
+                               IS7CommunicationService s7CommunicationService)
         {
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
             _deviceComunicationService = deviceCommunicationService;
             _acquisitionService = acquisitionService;
+            _s7CommunicationService = s7CommunicationService;
 
             LoadDeviceCmd = new(async () => await LoadDeviceJson());
 
@@ -92,6 +98,9 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
             DeleteCommand = new(async (deviceitem) => await DeleteDevice(deviceitem));
 
+            PLCConnectCmd = new(() => {
+                s7CommunicationService.S7Connect();
+            });
         }
 
 

@@ -30,7 +30,9 @@ namespace IndustrialMonitor.Modules.Device
 
             containerRegistry.RegisterSingleton<IDeviceCommunicationService, DeviceCommunicationService>();
             containerRegistry.RegisterSingleton<IModbusSimulationService,ModbusSimulationService>();
-            
+            containerRegistry.RegisterSingleton<IS7CommunicationService, S7CommunicationService>();
+
+
             containerRegistry.RegisterSingleton<IAcquisitionService, AcquisitionService>();
             containerRegistry.RegisterSingleton<IBaseRepository<DeviceDataModel>,BaseReposity>();
         }
