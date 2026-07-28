@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\IndustrialMonitor.Alarm\IndustrialMonitor.Alarm.csproj" />
     <ProjectReference Include="..\IndustrialMonitor.Communication\IndustrialMonitor.Communication.csproj" />
     <ProjectReference Include="..\IndustrialMonitor.Core\IndustrialMonitor.Core.csproj" />
   </ItemGroup>

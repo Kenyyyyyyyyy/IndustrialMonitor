@@ -11,4 +11,9 @@
     <PackageReference Include="Prism.Wpf" Version="9.0.537" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\IndustrialMonitor.Alarm\IndustrialMonitor.Alarm.csproj" />
+    <ProjectReference Include="..\IndustrialMonitor.DataAcquisition\IndustrialMonitor.DataAcquisition.csproj" />
+  </ItemGroup>
+
 </Project>

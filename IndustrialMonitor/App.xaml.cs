@@ -1,4 +1,6 @@
-﻿using IndustrialMonitor.Modules.Dashboard;
+﻿using IndustrialMonitor.Alarm.IRepository;
+using IndustrialMonitor.Alarm.Repository;
+using IndustrialMonitor.Modules.Dashboard;
 using IndustrialMonitor.Modules.Device;
 using IndustrialMonitor.Modules.Monitor;
 using System.Configuration;
@@ -23,7 +25,6 @@ namespace IndustrialMonitor
         {
             containerRegistry.RegisterForNavigation<MainWindow,MainWindowViewModel>();
 
-            
         }
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)

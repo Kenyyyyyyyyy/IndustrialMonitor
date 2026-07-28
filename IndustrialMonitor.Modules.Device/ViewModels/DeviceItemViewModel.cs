@@ -52,7 +52,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
             if (ConnectionResult.IsConnected)
             {
-                await _acquisitionservice.StartCollectAsync(ConfigModel.IpAddress);
+                await _acquisitionservice.StartCollectAsync(ConfigModel.IpAddress, ConfigModel.Id);
             }
         }
 

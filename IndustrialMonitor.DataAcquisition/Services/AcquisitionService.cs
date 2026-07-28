@@ -1,7 +1,9 @@
-﻿using IndustrialMonitor.Communication.IServices;
+﻿using IndustrialMonitor.Alarm.Models;
+using IndustrialMonitor.Communication.IServices;
 using IndustrialMonitor.Core.IRepository;
 using IndustrialMonitor.Core.Models;
 using IndustrialMonitor.DataAcquisition.IServices;
+using IndustrialMonitor.EventSupport.IServices;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,18 +20,25 @@ namespace IndustrialMonitor.DataAcquisition.Services
         private readonly IBaseRepository<DeviceDataModel> _baseRepository;
         private readonly IDeviceCommunicationService _deviceCommunicationService;
         private readonly IModbusSimulationService _modbusSimulationService;
+        private readonly IEventPublishService _eventPublishService;
 
         public readonly Dictionary<string, CancellationTokenSource> _tokens = [];
 
 
-        public AcquisitionService(IBaseRepository<DeviceDataModel> baseRepository, IDeviceCommunicationService deviceCommunicationService, IModbusSimulationService modbusSimulationService) 
+        public AcquisitionService(
+            IBaseRepository<DeviceDataModel> baseRepository,
+            IDeviceCommunicationService deviceCommunicationService,
+            IModbusSimulationService modbusSimulationService,
+            IEventPublishService eventPublishService) 
         {
             _baseRepository             = baseRepository;
             _deviceCommunicationService = deviceCommunicationService;
             _modbusSimulationService    = modbusSimulationService;
+            _eventPublishService        = eventPublishService;
         }
 
-        public Task StartCollectAsync(string ipAddress)
+
+        public Task StartCollectAsync(string ipAddress, Guid deviceid)
         {
             if (_tokens.TryGetValue(ipAddress, out _))
             {
@@ -40,7 +49,7 @@ namespace IndustrialMonitor.DataAcquisition.Services
             }
             CancellationTokenSource _cts = new();
             _tokens[ipAddress] = _cts;
-            _ = WriteInResisterAsync(ipAddress);
+            _ = WriteInResisterAsync(ipAddress, deviceid);
 
             return Task.CompletedTask;
         }
@@ -53,7 +62,7 @@ namespace IndustrialMonitor.DataAcquisition.Services
             _tokens.Remove(ipAddress);
         }
 
-        private async Task WriteInResisterAsync(string ipAddress)
+        private async Task WriteInResisterAsync(string ipAddress ,Guid deviceid)
         {
             if (!_tokens.TryGetValue(ipAddress, out var _cts)) return;
 
@@ -66,25 +75,16 @@ namespace IndustrialMonitor.DataAcquisition.Services
                     _ = _modbusSimulationService.StartSimulation(ipAddress);
                     await Task.Delay(10000, _cts.Token);
                 }
-                catch (OperationCanceledException)
-                {
-                    return;
-                }
-                catch (IOException)
-                {
-                    return;
-                }
-                catch (SocketException)
-                {
-                    return;
-                }
+                
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error writing to device {ipAddress}: {ex.Message}");
+                    _eventPublishService.PublishErrorInfo(deviceid, ex); //找一下deviceid 发布 
                     StopCollectAsync(ipAddress);
                     return;
                 }
             }
         }
+
+        
     }
 }

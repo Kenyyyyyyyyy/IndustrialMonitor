@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9
+# Visual Studio Version 18
+VisualStudioVersion = 18.8.12021.73
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndustrialMonitor", "IndustrialMonitor\IndustrialMonitor.csproj", "{AB0CDFDB-01EA-4E0E-88C2-A08591617211}"
 EndProject
@@ -21,6 +21,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndustrialMonitor.Core", "IndustrialMonitor.Core\IndustrialMonitor.Core.csproj", "{7593C28F-3F80-40FF-9900-74C36738B907}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndustrialMonitor.DataAcquisition", "IndustrialMonitor.DataAcquisition\IndustrialMonitor.DataAcquisition.csproj", "{EB22B67D-2A95-4C9D-8F72-BA6831A9F35E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndustrialMonitor.Alarm", "IndustrialMonitor.Alarm\IndustrialMonitor.Alarm.csproj", "{1B6F51B5-C01C-4326-B938-FAE31F889D8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndustrialMonitor.EventSupport", "IndustrialMonitor.EventSupport\IndustrialMonitor.EventSupport.csproj", "{366FE2AE-CD6B-4EC5-8BA6-3E5DD5F33A73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,6 +60,14 @@ Global
 		{EB22B67D-2A95-4C9D-8F72-BA6831A9F35E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB22B67D-2A95-4C9D-8F72-BA6831A9F35E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB22B67D-2A95-4C9D-8F72-BA6831A9F35E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B6F51B5-C01C-4326-B938-FAE31F889D8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B6F51B5-C01C-4326-B938-FAE31F889D8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B6F51B5-C01C-4326-B938-FAE31F889D8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B6F51B5-C01C-4326-B938-FAE31F889D8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{366FE2AE-CD6B-4EC5-8BA6-3E5DD5F33A73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{366FE2AE-CD6B-4EC5-8BA6-3E5DD5F33A73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{366FE2AE-CD6B-4EC5-8BA6-3E5DD5F33A73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{366FE2AE-CD6B-4EC5-8BA6-3E5DD5F33A73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

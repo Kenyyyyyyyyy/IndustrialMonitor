@@ -28,5 +28,7 @@ namespace IndustrialMonitor.Communication.IServices
         Task WriteRegisterAsync(string ipAddress, ushort startAddress, ushort[] values);
 
         public int GetYield();
+
+        public ushort GetYieldRate();
     }
 }

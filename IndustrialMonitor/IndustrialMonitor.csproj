@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\IndustrialMonitor.Alarm\IndustrialMonitor.Alarm.csproj" />
     <ProjectReference Include="..\IndustrialMonitor.Core\IndustrialMonitor.Core.csproj" />
     <ProjectReference Include="..\IndustrialMonitor.Modules.Dashboard\IndustrialMonitor.Modules.Dashboard.csproj" />
     <ProjectReference Include="..\IndustrialMonitor.Modules.Device\IndustrialMonitor.Modules.Device.csproj" />

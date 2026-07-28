@@ -9,7 +9,7 @@ namespace IndustrialMonitor.DataAcquisition.IServices
     public interface IAcquisitionService
     {
 
-        public Task StartCollectAsync(string ipAddress);
+        public Task StartCollectAsync(string ipAddress, Guid deviceid);
 
         public void StopCollectAsync(string ipAddress);
     }

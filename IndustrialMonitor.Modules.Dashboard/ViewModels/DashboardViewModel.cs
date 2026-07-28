@@ -77,6 +77,7 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
                 try
                 {
                     TodayOutput = _deviceCommunicationService.GetYield();
+                    YieldRate = _deviceCommunicationService.GetYieldRate();
                     await Task.Delay(1000, cancellationToken);
                 }
                 catch (Exception ex)

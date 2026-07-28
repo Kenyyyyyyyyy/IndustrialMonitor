@@ -116,7 +116,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         }
 
         
-
+        
         public async Task DeleteDevice(DeviceItemViewModel deviceitem)
         {
             if (deviceitem.ConfigModel.IpAddress != null && _deviceComunicationService.IsConnected(deviceitem.ConfigModel.IpAddress))

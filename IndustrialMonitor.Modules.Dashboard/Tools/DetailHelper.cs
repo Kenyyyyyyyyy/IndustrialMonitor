@@ -10,7 +10,6 @@ namespace IndustrialMonitor.Modules.Dashboard.Tools
 {
     internal class DetailHelper
     {
-
         public ObservableCollection<DeviceDetailModel> DeviceDetails { get; set; } = [];
         public ObservableCollection<DeviceDetailModel> TemperatureItems { get; set; } = [];
         public ObservableCollection<DeviceDetailModel> ProcessItems { get; set; } = [];

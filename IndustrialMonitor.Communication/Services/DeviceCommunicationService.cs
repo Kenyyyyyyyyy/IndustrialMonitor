@@ -1,5 +1,10 @@
-﻿using IndustrialMonitor.Communication.IServices;
+﻿using IndustrialMonitor.Alarm.IRepository;
+using IndustrialMonitor.Alarm.Models;
+using IndustrialMonitor.Communication.IServices;
+using IndustrialMonitor.Core.IRepository;
 using IndustrialMonitor.Core.Models;
+using IndustrialMonitor.EventSupport.IServices;
+using IndustrialMonitor.EventSupport.Services;
 using NModbus;
 using NModbus.Device;
 using System;
@@ -12,11 +17,13 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace IndustrialMonitor.Communication.Services
 {
     public class DeviceCommunicationService : IDeviceCommunicationService
     {
+        private readonly IEventPublishService _eventPublishService;
 
         private readonly Dictionary<string, ModbusConnectionModel> _connections = [];
 
@@ -25,6 +32,22 @@ namespace IndustrialMonitor.Communication.Services
             get { return _connections; }
         }
 
+        private int _allyield;
+         
+        public int Allyield
+        {
+            get { return _allyield; }
+            set { _allyield = value; }
+        }
+
+        
+
+        public DeviceCommunicationService(IEventPublishService eventPublishService)
+        {
+            _eventPublishService = eventPublishService;
+        }
+
+        
 
         public async Task<DeviceConnectionResult> ConnectAsync(DeviceConfigModel deviceConfig)
         {
@@ -46,6 +69,9 @@ namespace IndustrialMonitor.Communication.Services
             }
             catch (Exception ex)
             {
+
+                _eventPublishService.PublishErrorInfo(deviceConfig.Id, ex);
+
                 return new DeviceConnectionResult
                 {
                     IsConnected = false,
@@ -72,28 +98,20 @@ namespace IndustrialMonitor.Communication.Services
             _connections[deviceConfig.IpAddress].modbusMaster.Transport.Retries = 0;
 
 
-
-
             try
             {
                 await Task.Run(() =>
                 _connections[deviceConfig.IpAddress].modbusMaster.ReadHoldingRegisters(deviceConfig.SlaveId,deviceConfig.StartAddress,1));
                 
             }
-            catch(IOException ex)
-            {
-                DisconnectAsync(deviceConfig);
+            
 
-                return new DeviceConnectionResult
-                {
-                    IsConnected = false,
-                    Status = "IOException",
-                    ErrorMessage = ex.Message
-                };
-            }
             catch (Exception ex)
             {
+                _eventPublishService.PublishErrorInfo(deviceConfig.Id, ex);
+
                 DisconnectAsync(deviceConfig);
+
 
                 return new DeviceConnectionResult
                 {
@@ -160,20 +178,10 @@ namespace IndustrialMonitor.Communication.Services
                 };
             }
 
-            catch (SlaveException ex)
-            {
-                DisconnectAsync(_connections[ipAddress].DeviceConfig);
-                return new ReadRegistersResult
-                {
-                    Success = false,
-                    Data = [],
-                    ErrorMessage = "Slave错误" + ex.Message,
-                    IsConnected = false
-                };
-            }
-
             catch (Exception ex)
             {
+                _eventPublishService.PublishErrorInfo(connection.DeviceConfig.Id, ex);
+
                 DisconnectAsync(_connections[ipAddress].DeviceConfig);
                 return new ReadRegistersResult
                 {
@@ -236,8 +244,7 @@ namespace IndustrialMonitor.Communication.Services
 
         public int GetYield()
         {
-            int Allyield = 0;
-
+            Allyield = 0;
             foreach (var connectionModel in Connections.Values)
             {
                 try 
@@ -247,13 +254,43 @@ namespace IndustrialMonitor.Communication.Services
                     ushort value = registers[0];
                     Allyield += value;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    _eventPublishService.PublishErrorInfo(connectionModel.DeviceConfig.Id, ex);
                     continue;
                 }
             }
 
             return Allyield;
         }
+
+        public ushort GetYieldRate()
+        {
+            int goods = 0;
+
+            foreach (var connectionModel in Connections.Values)
+            {
+                try
+                {
+                    ushort[] registers = connectionModel.modbusMaster.ReadHoldingRegisters
+                    (connectionModel.DeviceConfig.SlaveId, 16, 1);
+                    ushort value = registers[0];
+                    goods += value;
+                }
+                catch (Exception ex)
+                {
+                    _eventPublishService.PublishErrorInfo(connectionModel.DeviceConfig.Id, ex);
+                    continue;
+                }
+            }
+
+            if (Allyield == 0) return 0;
+            
+
+            return (ushort)(((double)goods / Allyield) * 100) ;
+        }
+
+        
+        
     }
 }
