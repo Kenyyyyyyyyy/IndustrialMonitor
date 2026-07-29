@@ -9,6 +9,12 @@ namespace IndustrialMonitor.Alarm.Models
     public class ErrorInfo
     {
         public Guid deviceid;
-        public Exception exception;
+
+        public required Exception exception;
+        public string? IpAddress { get; set; }
+
+        public byte? SlaveId { get; set; }
+
+        public ushort? Port { get; set; }
     }
 }

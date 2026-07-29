@@ -28,5 +28,20 @@ namespace IndustrialMonitor.EventSupport.Services
                     exception = exception
                 });
         }
+
+        public void PublishCommunicationErrorInfo(Guid deviceid,string ipAddress , byte slaveId ,ushort port , Exception exception)
+        {
+            _eventAggregator
+                .GetEvent<CommunicationFailedEvent>()
+                .Publish(new ErrorInfo
+                {
+                    deviceid = deviceid,
+                    exception = exception,
+                    IpAddress = ipAddress,
+                    Port = port,
+                    SlaveId = slaveId
+                });
+        }
+
     }
 }

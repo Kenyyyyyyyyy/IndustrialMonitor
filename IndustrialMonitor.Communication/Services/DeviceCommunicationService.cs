@@ -32,14 +32,6 @@ namespace IndustrialMonitor.Communication.Services
             get { return _connections; }
         }
 
-        private int _allyield;
-         
-        public int Allyield
-        {
-            get { return _allyield; }
-            set { _allyield = value; }
-        }
-
         
 
         public DeviceCommunicationService(IEventPublishService eventPublishService)
@@ -70,7 +62,12 @@ namespace IndustrialMonitor.Communication.Services
             catch (Exception ex)
             {
 
-                _eventPublishService.PublishErrorInfo(deviceConfig.Id, ex);
+                _eventPublishService.PublishCommunicationErrorInfo(
+                    deviceConfig.Id,
+                    deviceConfig.IpAddress,
+                    deviceConfig.SlaveId,
+                    deviceConfig.Port,
+                    ex);
 
                 return new DeviceConnectionResult
                 {
@@ -108,7 +105,12 @@ namespace IndustrialMonitor.Communication.Services
 
             catch (Exception ex)
             {
-                _eventPublishService.PublishErrorInfo(deviceConfig.Id, ex);
+                _eventPublishService.PublishCommunicationErrorInfo(
+                    deviceConfig.Id,
+                    deviceConfig.IpAddress,
+                    deviceConfig.SlaveId,
+                    deviceConfig.Port,
+                    ex);
 
                 DisconnectAsync(deviceConfig);
 
@@ -154,6 +156,9 @@ namespace IndustrialMonitor.Communication.Services
         public async Task<ReadRegistersResult> ReadHoldingRegistersAsync(string ipAddress)
         {
             if (!_connections.TryGetValue(ipAddress, out var connection)) 
+
+                
+
                 return new ReadRegistersResult
                 {
                     Success = false,
@@ -162,13 +167,14 @@ namespace IndustrialMonitor.Communication.Services
                     IsConnected = false
                 };
 
+            DeviceConfigModel deviceConfig = connection.DeviceConfig;
+
             try
             {
                 ushort[] registers = await Task.Run(
-                    () => connection.modbusMaster.ReadHoldingRegisters
-                    (connection.DeviceConfig.SlaveId,
-                    connection.DeviceConfig.StartAddress,
-                    connection.DeviceConfig.NumberOfPoints));
+                    () => connection.modbusMaster
+                    .ReadHoldingRegisters(deviceConfig.SlaveId, deviceConfig.StartAddress, deviceConfig.NumberOfPoints));
+
                 return new ReadRegistersResult
                 {
                     Success = true,
@@ -180,9 +186,15 @@ namespace IndustrialMonitor.Communication.Services
 
             catch (Exception ex)
             {
-                _eventPublishService.PublishErrorInfo(connection.DeviceConfig.Id, ex);
+                _eventPublishService.PublishCommunicationErrorInfo(
+                   deviceConfig.Id,
+                   deviceConfig.IpAddress,
+                   deviceConfig.SlaveId,
+                   deviceConfig.Port,
+                   ex);
 
                 DisconnectAsync(_connections[ipAddress].DeviceConfig);
+
                 return new ReadRegistersResult
                 {
                     Success = false,
@@ -213,6 +225,7 @@ namespace IndustrialMonitor.Communication.Services
             {
                 throw new InvalidOperationException(result.ErrorMessage);
             }
+
             DateTime now = DateTime.Now;
             DateTime time = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second);
 
@@ -247,16 +260,23 @@ namespace IndustrialMonitor.Communication.Services
             Allyield = 0;
             foreach (var connectionModel in Connections.Values)
             {
+                DeviceConfigModel deviceConfigModel = connectionModel.DeviceConfig;
                 try 
                 {
                     ushort[] registers = connectionModel.modbusMaster.ReadHoldingRegisters
-                    (connectionModel.DeviceConfig.SlaveId, 15, 1);
+                    (deviceConfigModel.SlaveId, 15, 1);
                     ushort value = registers[0];
                     Allyield += value;
                 }
                 catch (Exception ex)
                 {
-                    _eventPublishService.PublishErrorInfo(connectionModel.DeviceConfig.Id, ex);
+                    _eventPublishService.PublishCommunicationErrorInfo(
+                   deviceConfigModel.Id,
+                   deviceConfigModel.IpAddress,
+                   deviceConfigModel.SlaveId,
+                   deviceConfigModel.Port,
+                   ex);
+
                     continue;
                 }
             }
@@ -270,16 +290,23 @@ namespace IndustrialMonitor.Communication.Services
 
             foreach (var connectionModel in Connections.Values)
             {
+                DeviceConfigModel deviceConfigModel = connectionModel.DeviceConfig;
                 try
                 {
                     ushort[] registers = connectionModel.modbusMaster.ReadHoldingRegisters
-                    (connectionModel.DeviceConfig.SlaveId, 16, 1);
+                    (deviceConfigModel.SlaveId, 16, 1);
                     ushort value = registers[0];
                     goods += value;
                 }
                 catch (Exception ex)
                 {
-                    _eventPublishService.PublishErrorInfo(connectionModel.DeviceConfig.Id, ex);
+                    _eventPublishService.PublishCommunicationErrorInfo(
+                  deviceConfigModel.Id,
+                  deviceConfigModel.IpAddress,
+                  deviceConfigModel.SlaveId,
+                  deviceConfigModel.Port,
+                  ex);
+
                     continue;
                 }
             }
@@ -290,7 +317,14 @@ namespace IndustrialMonitor.Communication.Services
             return (ushort)(((double)goods / Allyield) * 100) ;
         }
 
-        
-        
+
+        private int _allyield;
+
+        public int Allyield
+        {
+            get { return _allyield; }
+            set { _allyield = value; }
+        }
+
     }
 }

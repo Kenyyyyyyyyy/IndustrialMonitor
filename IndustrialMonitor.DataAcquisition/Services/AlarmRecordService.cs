@@ -37,6 +37,9 @@ namespace IndustrialMonitor.DataAcquisition.Services
                 DeviceId = errorInfo.deviceid,
                 Message = errorInfo.exception.Message,
                 DateTime = DateTime.Now,
+                IpAddress = errorInfo.IpAddress,
+                SlaveId = errorInfo.SlaveId,
+                Port = errorInfo.Port,
             };
 
             Exception exception = errorInfo.exception;
@@ -111,7 +114,7 @@ namespace IndustrialMonitor.DataAcquisition.Services
 
                     default:
                         record.AlarmCode = 999;
-                        record.AlarmLevel = AlarmRecord.Level.Warning;
+                        record.AlarmLevel = AlarmRecord.Level.Critical;
                         record.AlarmItem = AlarmRecord.Item.UnknowException;
                         break;
                 }

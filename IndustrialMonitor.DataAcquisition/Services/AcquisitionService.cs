@@ -78,7 +78,7 @@ namespace IndustrialMonitor.DataAcquisition.Services
                 
                 catch (Exception ex)
                 {
-                    _eventPublishService.PublishErrorInfo(deviceid, ex); //找一下deviceid 发布 
+                    _eventPublishService.PublishErrorInfo(deviceid, ex); 
                     StopCollectAsync(ipAddress);
                     return;
                 }

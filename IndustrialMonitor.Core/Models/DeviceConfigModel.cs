@@ -12,7 +12,7 @@ namespace IndustrialMonitor.Core.Models
 
         public string IpAddress { get; set; } 
 
-        public int Port { get; set; } 
+        public ushort Port { get; set; } 
 
         public byte SlaveId { get; set; } 
 

@@ -9,5 +9,7 @@ namespace IndustrialMonitor.EventSupport.IServices
     public interface IEventPublishService
     {
         public void PublishErrorInfo(Guid deviceid, Exception exception);
+
+        public void PublishCommunicationErrorInfo(Guid deviceid, string ipAddress, byte slaveId, ushort port, Exception exception);
     }
 }

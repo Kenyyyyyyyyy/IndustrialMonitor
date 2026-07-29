@@ -14,6 +14,12 @@ namespace IndustrialMonitor.Alarm.Models
 
         public Guid DeviceId { get; set; }
 
+        public string? IpAddress { get; set; }
+
+        public byte? SlaveId { get; set; }
+
+        public ushort? Port { get; set; }
+
         public enum Level
         {
             Normal,

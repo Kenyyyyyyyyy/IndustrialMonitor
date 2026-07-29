@@ -11,7 +11,8 @@ namespace IndustrialMonitor.Communication.Services
     public class ModbusSimulationService : IModbusSimulationService
     {
         private const int RegisterCount = 25;
-        private const int SimulationIntervalSeconds = 10;
+        private const int BaseOutputPerCycle = 10;
+        private const double MaxElapsedSeconds = 30;
 
         private readonly IDeviceCommunicationService _deviceCommunicationService;
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _deviceLocks = new();
@@ -31,18 +32,26 @@ namespace IndustrialMonitor.Communication.Services
 
             try
             {
-                var result = await _deviceCommunicationService.ReadHoldingRegistersAsync(ipAddress);
-                if (!result.Success || result.Data.Length < RegisterCount) return;
+                // 采集配置允许从任意 StartAddress 开始读取，但模拟规则固定使用
+                // 0~24 号物理寄存器。不能把读取结果的数组下标直接当作寄存器地址。
+                if (!_deviceCommunicationService.Connections.TryGetValue(ipAddress, out var connection)) return;
 
-                var registers = result.Data.Take(RegisterCount).ToArray();
+                var deviceConfig = connection.DeviceConfig;
+                var registers = await Task.Run(() => connection.modbusMaster.ReadHoldingRegisters(
+                    deviceConfig.SlaveId,
+                    startAddress: 0,
+                    numberOfPoints: RegisterCount));
+
+                if (registers.Length < RegisterCount) return;
                 bool isRunning = registers[0] == 1;
                 var state = _states.GetOrAdd(ipAddress, _ => new SimulationState());
+                double elapsedSeconds = state.GetElapsedSeconds();
 
                 // 0/1/3/4 的状态、模式和报警完全由 Modbus Slave 手动维护，不在此修改。
                 SimulateTemperature(registers, isRunning);
                 SimulateProcess(registers, isRunning);
-                bool completedCycle = SimulateOperation(registers, isRunning, state);
-                SimulateProduction(registers, isRunning, completedCycle, state);
+                int completedCycles = SimulateOperation(registers, isRunning, state, elapsedSeconds);
+                SimulateProduction(registers, isRunning, completedCycles, state);
 
                 // 只写 5~24，避免覆盖手动设置的设备状态寄存器。
                 await _deviceCommunicationService.WriteRegisterAsync(ipAddress, 5, registers[5..25]);
@@ -57,116 +66,82 @@ namespace IndustrialMonitor.Communication.Services
         {
             if (!isRunning)
             {
-                // 停机后温度缓慢冷却；9 号设定温度不修改。
-                registers[5] = MoveTowards(registers[5], 300, 0, 1150, 15);
-                registers[6] = MoveTowards(registers[6], 300, 0, 2250, 20);
-                registers[7] = MoveTowards(registers[7], 300, 0, 2450, 20);
-                registers[8] = MoveTowards(registers[8], 300, 0, 2550, 20);
+                // 停机、待机、故障或未知状态时，实际温度持续下降；9 号设定温度不修改。
+                registers[5] = DecreaseValue(registers[5], 15);
+                registers[6] = DecreaseValue(registers[6], 20);
+                registers[7] = DecreaseValue(registers[7], 20);
+                registers[8] = DecreaseValue(registers[8], 20);
                 return;
             }
 
-            // 温度均按 0.1 ℃ 存储。9 号为人工设定的模具温度，推荐设置 850（85.0 ℃）。
-            int moldTarget = registers[9] == 0 ? 820 : registers[9] - 30;
-            registers[5] = SimulateRunningValue(
-                registers[5], moldTarget,
-                recoveryThreshold: 760, normalMin: 780, normalMax: 900,
-                hardMax: 1150, normalStep: 12, recoveryStep: 25, spikeSize: 140);
-
-            registers[6] = SimulateRunningValue(
-                registers[6], target: 1850,
-                recoveryThreshold: 1500, normalMin: 1750, normalMax: 1950,
-                hardMax: 2250, normalStep: 15, recoveryStep: 35, spikeSize: 180);
-
-            registers[7] = SimulateRunningValue(
-                registers[7], target: 2050,
-                recoveryThreshold: 1700, normalMin: 1950, normalMax: 2150,
-                hardMax: 2450, normalStep: 15, recoveryStep: 35, spikeSize: 180);
-
-            registers[8] = SimulateRunningValue(
-                registers[8], target: 2150,
-                recoveryThreshold: 1800, normalMin: 2050, normalMax: 2250,
-                hardMax: 2550, normalStep: 15, recoveryStep: 35, spikeSize: 180);
+            // 温度均按 0.1 ℃ 存储；9 号设定温度仍由 Modbus Slave 手动维护。
+            registers[5] = SimulateBoundedValue(registers[5], 780, 900, 600, 1150, 12, 100);
+            registers[6] = SimulateBoundedValue(registers[6], 1750, 1950, 1400, 2250, 15, 150);
+            registers[7] = SimulateBoundedValue(registers[7], 1950, 2150, 1600, 2450, 15, 150);
+            registers[8] = SimulateBoundedValue(registers[8], 2050, 2250, 1700, 2550, 15, 150);
         }
 
         private static void SimulateProcess(ushort[] registers, bool isRunning)
         {
             if (!isRunning)
             {
-                // 非运行状态下工艺参数逐步归零，而不是立即跳变。
-                registers[10] = MoveTowards(registers[10], 0, 0, 1500, 40);
-                registers[11] = MoveTowards(registers[11], 0, 0, 1100, 35);
-                registers[12] = MoveTowards(registers[12], 0, 0, 18000, 350);
-                registers[13] = MoveTowards(registers[13], 0, 0, 900, 35);
-                registers[14] = MoveTowards(registers[14], 0, 0, 150, 6);
+                // 非运行状态下工艺参数持续下降，直至归零。
+                registers[10] = DecreaseValue(registers[10], 40);
+                registers[11] = DecreaseValue(registers[11], 35);
+                registers[12] = DecreaseValue(registers[12], 350);
+                registers[13] = DecreaseValue(registers[13], 35);
+                registers[14] = DecreaseValue(registers[14], 6);
                 return;
             }
 
             // 10~13 按 0.1 单位存储，14 为整数 rpm。
-            registers[10] = SimulateRunningValue(
-                registers[10], target: 1100,
-                recoveryThreshold: 700, normalMin: 950, normalMax: 1250,
-                hardMax: 1500, normalStep: 30, recoveryStep: 70, spikeSize: 170); // 注射压力：0~150 MPa
-
-            registers[11] = SimulateRunningValue(
-                registers[11], target: 700,
-                recoveryThreshold: 450, normalMin: 600, normalMax: 800,
-                hardMax: 1100, normalStep: 25, recoveryStep: 55, spikeSize: 140); // 保压压力：0~110 MPa
-
-            registers[12] = SimulateRunningValue(
-                registers[12], target: 12500,
-                recoveryThreshold: 9000, normalMin: 11000, normalMax: 14000,
-                hardMax: 18000, normalStep: 220, recoveryStep: 500, spikeSize: 1800); // 锁模力：0~1800 kN
-
-            registers[13] = SimulateRunningValue(
-                registers[13], target: 500,
-                recoveryThreshold: 300, normalMin: 400, normalMax: 600,
-                hardMax: 900, normalStep: 30, recoveryStep: 70, spikeSize: 160); // 注射速度：0~90 mm/s
-
-            registers[14] = SimulateRunningValue(
-                registers[14], target: 75,
-                recoveryThreshold: 40, normalMin: 60, normalMax: 90,
-                hardMax: 150, normalStep: 5, recoveryStep: 12, spikeSize: 35); // 螺杆转速：0~150 rpm
+            registers[10] = SimulateBoundedValue(registers[10], 950, 1250, 600, 1500, 30, 120);
+            registers[11] = SimulateBoundedValue(registers[11], 600, 800, 350, 1100, 25, 100);
+            registers[12] = SimulateBoundedValue(registers[12], 11000, 14000, 8000, 18000, 220, 1200);
+            registers[13] = SimulateBoundedValue(registers[13], 400, 600, 200, 900, 30, 120);
+            registers[14] = SimulateBoundedValue(registers[14], 60, 90, 30, 150, 5, 25);
         }
 
         private static void SimulateProduction(
             ushort[] registers,
             bool isRunning,
-            bool completedCycle,
+            int completedCycles,
             SimulationState state)
         {
-            // 只有运行状态完成一个标准循环时，才产出新的制品。
             int total = registers[15];
             int qualified = registers[16];
             int defective = registers[17];
             int shiftOutput = registers[19];
 
-            if (isRunning && completedCycle)
+            if (isRunning && completedCycles > 0)
             {
-                // 一个循环通常由模具多腔同时产出 1~4 件。
-                int produced = Random.Shared.Next(1, 5);
+                double qualityPenalty = CalculateQualityPenalty(registers);
 
-                // 约 3% 的循环出现不良品，单个循环最多出现 2 件不良品。
-                int defectiveIncrement = Random.Shared.NextDouble() < 0.03
-                    ? Random.Shared.Next(1, Math.Min(produced, 2) + 1)
-                    : 0;
-
-                int qualifiedIncrement = produced - defectiveIncrement;
-
-                total += produced;
-                qualified += qualifiedIncrement;
-                defective += defectiveIncrement;
-
-                state.CompletedCyclesInShift++;
-
-                // 每 6 个标准循环视为一个班次；第 6 个周期完成后班次产量清零。
-                if (state.CompletedCyclesInShift >= 6)
+                for (int cycle = 0; cycle < completedCycles; cycle++)
                 {
-                    shiftOutput = 0;
-                    state.CompletedCyclesInShift = 0;
-                }
-                else
-                {
-                    shiftOutput += produced;
+                    // 参数越偏离正常范围，周期产量越低且不良率越高。
+                    int produced = Math.Max(0, (int)Math.Round(BaseOutputPerCycle * (1 - qualityPenalty)));
+                    double defectRate = Math.Clamp(
+                        0.02 + qualityPenalty * 0.55 + Random.Shared.NextDouble() * 0.02,
+                        0.01,
+                        0.85);
+                    int defectiveIncrement = (int)Math.Round(produced * defectRate, MidpointRounding.AwayFromZero);
+                    defectiveIncrement = Math.Clamp(defectiveIncrement, 0, produced);
+
+                    total += produced;
+                    qualified += produced - defectiveIncrement;
+                    defective += defectiveIncrement;
+
+                    state.CompletedCyclesInShift++;
+                    if (state.CompletedCyclesInShift >= 6)
+                    {
+                        shiftOutput = 0;
+                        state.CompletedCyclesInShift = 0;
+                    }
+                    else
+                    {
+                        shiftOutput += produced;
+                    }
                 }
             }
 
@@ -179,41 +154,50 @@ namespace IndustrialMonitor.Communication.Services
             registers[19] = ClampToUshort(shiftOutput);
         }
 
-        private static bool SimulateOperation(ushort[] registers, bool isRunning, SimulationState state)
+        private static int SimulateOperation(
+            ushort[] registers,
+            bool isRunning,
+            SimulationState state,
+            double elapsedSeconds)
         {
             // 21 号标准循环周期由 Modbus Slave 手动设置，不在此修改。
             ushort standardCycle = registers[21];
 
             if (isRunning && standardCycle > 0)
             {
-                // 20 号按 0.1 秒存储。采集周期为 10 秒，因此每轮增加 100。
-                int nextCycle = registers[20] + SimulationIntervalSeconds * 10;
-                bool completedCycle = nextCycle >= standardCycle;
-                registers[20] = completedCycle ? (ushort)0 : ClampToUshort(nextCycle);
+                // 20/21 号按 0.1 秒存储，按真实经过时间推进循环。
+                int elapsedTenths = (int)Math.Round(elapsedSeconds * 10, MidpointRounding.AwayFromZero);
+                int nextCycle = registers[20] + elapsedTenths;
+                int completedCycles = nextCycle / standardCycle;
+                registers[20] = (ushort)(nextCycle % standardCycle);
 
-                UpdateOperationTime(registers, isRunning, state);
-                return completedCycle;
+                UpdateOperationTime(registers, true, state, elapsedSeconds);
+                return completedCycles;
             }
 
             registers[20] = 0;
-            UpdateOperationTime(registers, isRunning, state);
-            return false;
+            UpdateOperationTime(registers, false, state, elapsedSeconds);
+            return 0;
         }
 
-        private static void UpdateOperationTime(ushort[] registers, bool isRunning, SimulationState state)
+        private static void UpdateOperationTime(
+            ushort[] registers,
+            bool isRunning,
+            SimulationState state,
+            double elapsedSeconds)
         {
-            // 22/23 的单位是分钟；每累计 60 秒，才给对应计时器加 1。
+            // 22/23 的单位是分钟；按设备保持连接期间真实经过的时间累计。
             if (isRunning)
             {
-                state.RunningSeconds += SimulationIntervalSeconds;
-                int minutes = state.RunningSeconds / 60;
+                state.RunningSeconds += elapsedSeconds;
+                int minutes = (int)(state.RunningSeconds / 60);
                 state.RunningSeconds %= 60;
                 registers[22] = ClampToUshort(registers[22] + minutes);
             }
             else
             {
-                state.DowntimeSeconds += SimulationIntervalSeconds;
-                int minutes = state.DowntimeSeconds / 60;
+                state.DowntimeSeconds += elapsedSeconds;
+                int minutes = (int)(state.DowntimeSeconds / 60);
                 state.DowntimeSeconds %= 60;
                 registers[23] = ClampToUshort(registers[23] + minutes);
             }
@@ -224,47 +208,69 @@ namespace IndustrialMonitor.Communication.Services
                 : ClampToUshort((int)Math.Round(registers[22] * 1000d / totalMinutes)); // 0.1%
         }
 
-        private static ushort SimulateRunningValue(
+        private static ushort SimulateBoundedValue(
             ushort current,
-            int target,
-            int recoveryThreshold,
-            int normalMin,
-            int normalMax,
-            int hardMax,
+            int min,
+            int max,
+            int absoluteMin,
+            int absoluteMax,
             int normalStep,
-            int recoveryStep,
-            int spikeSize)
+            int disturbanceSize)
         {
-            // 低于恢复阈值时只允许上升，直到回到正常下限，模拟加热/建压过程。
-            if (current < recoveryThreshold)
+            int next;
+            if (current < min)
             {
-                return ClampToUshort(Math.Min(current + Random.Shared.Next(recoveryStep / 2, recoveryStep + 1), normalMin));
+                double severity = Math.Clamp((min - current) / (double)(min - absoluteMin), 0, 1);
+                bool moveUp = Random.Shared.NextDouble() < 0.60 + severity * 0.35;
+                next = current + (moveUp ? 1 : -1) * Random.Shared.Next(1, normalStep + 1);
+            }
+            else if (current > max)
+            {
+                double severity = Math.Clamp((current - max) / (double)(absoluteMax - max), 0, 1);
+                bool moveDown = Random.Shared.NextDouble() < 0.60 + severity * 0.35;
+                next = current + (moveDown ? -1 : 1) * Random.Shared.Next(1, normalStep + 1);
+            }
+            else
+            {
+                next = current + Random.Shared.Next(-normalStep, normalStep + 1);
+                if (Random.Shared.NextDouble() < 0.02)
+                {
+                    next += Random.Shared.Next(0, 2) == 0 ? -disturbanceSize : disturbanceSize;
+                }
             }
 
-            int next = MoveTowards(current, target, 0, hardMax, normalStep);
-
-            // 少量低值场景：下一轮会进入上面的恢复分支并连续升高。
-            if (Random.Shared.NextDouble() < 0.01)
-            {
-                return ClampToUshort(Math.Max(0, recoveryThreshold - Random.Shared.Next(recoveryStep, recoveryStep * 3)));
-            }
-
-            // 约 1.5% 概率产生一次短时高值，为后续“过高报警”模块留出测试场景。
-            if (Random.Shared.NextDouble() < 0.015)
-            {
-                next = Math.Min(next + Random.Shared.Next(spikeSize / 2, spikeSize + 1), hardMax);
-            }
-
-            return ClampToUshort(Math.Clamp(next, normalMin, hardMax));
+            return ClampToUshort(Math.Clamp(next, absoluteMin, absoluteMax));
         }
 
-        private static ushort MoveTowards(ushort current, int target, int min, int max, int maxStep)
+        private static ushort DecreaseValue(ushort current, int maxStep)
         {
-            int correction = Math.Clamp(target - current, -maxStep / 2, maxStep / 2);
-            int noise = Random.Shared.Next(-maxStep, maxStep + 1);
-            int next = current + correction + noise;
+            if (current == 0) return 0;
 
-            return ClampToUshort(Math.Clamp(next, min, max));
+            int decrease = Random.Shared.Next(1, maxStep + 1);
+            return ClampToUshort(Math.Max(0, current - decrease));
+        }
+
+        private static double CalculateQualityPenalty(ushort[] registers)
+        {
+            var ranges = new (int Index, int Min, int Max, double Weight)[]
+            {
+                (5, 780, 900, 1.0), (6, 1750, 1950, 1.0), (7, 1950, 2150, 1.0),
+                (8, 2050, 2250, 1.0), (10, 950, 1250, 1.2), (11, 600, 800, 1.1),
+                (12, 11000, 14000, 1.3), (13, 400, 600, 0.9), (14, 60, 90, 0.8)
+            };
+
+            double weightedPenalty = 0;
+            double totalWeight = 0;
+            foreach (var range in ranges)
+            {
+                int value = registers[range.Index];
+                int deviation = value < range.Min ? range.Min - value : Math.Max(0, value - range.Max);
+                double normalizedDeviation = Math.Clamp(deviation / (double)(range.Max - range.Min), 0, 1);
+                weightedPenalty += normalizedDeviation * range.Weight;
+                totalWeight += range.Weight;
+            }
+
+            return totalWeight == 0 ? 0 : weightedPenalty / totalWeight;
         }
 
         private static ushort ClampToUshort(int value)
@@ -274,9 +280,24 @@ namespace IndustrialMonitor.Communication.Services
 
         private sealed class SimulationState
         {
-            public int RunningSeconds { get; set; }
-            public int DowntimeSeconds { get; set; }
+            public DateTime? LastSimulationAtUtc { get; set; }
+            public double RunningSeconds { get; set; }
+            public double DowntimeSeconds { get; set; }
             public int CompletedCyclesInShift { get; set; }
+
+            public double GetElapsedSeconds()
+            {
+                DateTime now = DateTime.UtcNow;
+                if (LastSimulationAtUtc is null)
+                {
+                    LastSimulationAtUtc = now;
+                    return 0;
+                }
+
+                double elapsed = (now - LastSimulationAtUtc.Value).TotalSeconds;
+                LastSimulationAtUtc = now;
+                return Math.Clamp(elapsed, 0, MaxElapsedSeconds);
+            }
         }
     }
 }

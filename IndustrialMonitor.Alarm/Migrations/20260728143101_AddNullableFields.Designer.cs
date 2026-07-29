@@ -3,6 +3,7 @@ using System;
 using IndustrialMonitor.Alarm;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IndustrialMonitor.Alarm.Migrations
 {
     [DbContext(typeof(AlarmDbContext))]
-    partial class AlarmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260728143101_AddNullableFields")]
+    partial class AddNullableFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.29");
