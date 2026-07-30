@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IndustrialMonitor.Modules.Device.DeviceViewModel
+namespace IndustrialMonitor.Modules.Device.DeviceViewModels
 {
-    public class ModbusTcpViewModel
+    public class S7ViewModel
     {
 
     }

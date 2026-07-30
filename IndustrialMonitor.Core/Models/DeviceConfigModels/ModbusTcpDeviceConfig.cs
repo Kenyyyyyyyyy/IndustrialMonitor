@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace IndustrialMonitor.Core.Models.DeviceConfigModels
+{
+    public class ModbusTcpDeviceConfig : DeviceConfig
+    {
+        public string IpAddress { get; set; }
+
+        public ushort Port { get; set; }
+
+        public byte SlaveId { get; set; }
+
+        public ushort StartAddress { get; set; }
+
+        public ushort NumberOfPoints { get; set; }
+    }
+}

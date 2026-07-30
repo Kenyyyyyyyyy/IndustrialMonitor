@@ -9,7 +9,6 @@ using IndustrialMonitor.DataAcquisition.IServices;
 using IndustrialMonitor.DataAcquisition.Services;
 using IndustrialMonitor.EventSupport.IServices;
 using IndustrialMonitor.EventSupport.Services;
-using IndustrialMonitor.Modules.Device.Tools;
 using IndustrialMonitor.Modules.Device.ViewModels;
 using IndustrialMonitor.Modules.Device.Views;
 using System;
@@ -22,7 +21,6 @@ namespace IndustrialMonitor.Modules.Device
 {
     public class Device : IModule
     {
-        
 
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
@@ -32,6 +30,9 @@ namespace IndustrialMonitor.Modules.Device
             containerRegistry.RegisterSingleton<IDeviceCommunicationService, DeviceCommunicationService>();
             containerRegistry.RegisterSingleton<IModbusSimulationService,ModbusSimulationService>();
             containerRegistry.RegisterSingleton<IS7CommunicationService, S7CommunicationService>();
+
+            containerRegistry.RegisterSingleton<IDeviceStorageService, DeviceStorageService>();
+            containerRegistry.RegisterSingleton<IDeviceStorageRepository, DeviceStorageRepository>();
 
             containerRegistry.RegisterSingleton<IEventPublishService, EventPublishService>();
 

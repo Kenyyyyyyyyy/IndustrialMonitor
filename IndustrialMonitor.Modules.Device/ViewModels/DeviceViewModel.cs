@@ -1,8 +1,8 @@
 ﻿using IndustrialMonitor.Communication.IServices;
 using IndustrialMonitor.Communication.Services;
 using IndustrialMonitor.Core.Models;
+using IndustrialMonitor.Core.Models.DeviceConfigModels;
 using IndustrialMonitor.DataAcquisition.IServices;
-using IndustrialMonitor.Modules.Device.Tools;
 using Prism.Commands;
 using Prism.Common;
 using System;
@@ -18,11 +18,13 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
     public class DeviceViewModel : BindableBase ,INavigationAware
     {
 
-        private readonly DeviceStorageService _deviceStorageService = new();
+        
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
+
         private readonly IDeviceCommunicationService _deviceComunicationService;
         private readonly IAcquisitionService _acquisitionService;
+        private readonly IDeviceStorageService _deviceStorageService;
 
         private readonly IS7CommunicationService _s7CommunicationService;
 
@@ -37,19 +39,23 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         public DelegateCommand PLCConnectCmd { get; }
 
         public ObservableCollection<DeviceItemViewModel> Devices { get; } = [];
-        public List<DeviceConfigModel> DeviceConfigModels = [];
+        public List<DeviceConfig> DeviceConfig = [];
 
 
         public DeviceViewModel(IDialogService dialogService,
                                IEventAggregator eventAggregator,
                                IDeviceCommunicationService deviceCommunicationService,
                                IAcquisitionService acquisitionService,
+                               IDeviceStorageService deviceStorageService,
                                IS7CommunicationService s7CommunicationService)
         {
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
+
             _deviceComunicationService = deviceCommunicationService;
             _acquisitionService = acquisitionService;
+            _deviceStorageService = deviceStorageService;
+
             _s7CommunicationService = s7CommunicationService;
 
             LoadDeviceCmd = new(async () => await LoadDeviceJson());
@@ -58,7 +64,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
             {
                 DialogParameters keyValuePairs = new() 
                 { 
-                    { "DeviceConfigModels", DeviceConfigModels },
+                    { "DeviceConfigModels", DeviceConfig },
                     { "Mode", "Add" } 
                 };
 
@@ -71,30 +77,30 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
                 });
             });
 
-            UpdataCommand = new(deviceitem => 
-            {
-                if (deviceitem.ConfigModel.IpAddress != null && _deviceComunicationService.IsConnected(deviceitem.ConfigModel.IpAddress))
-                {
-                    MessageBox.Show("设备正在连接！请断开连接后重试");
-                    return;
-                }
+            //UpdataCommand = new(deviceitem => 
+            //{
+            //    if (deviceitem.ConfigModel.IpAddress != null && _deviceComunicationService.IsConnected(deviceitem.ConfigModel.IpAddress))
+            //    {
+            //        MessageBox.Show("设备正在连接！请断开连接后重试");
+            //        return;
+            //    }
 
-                DialogParameters keyValuePairs = new()
-                {
-                    { "DeviceConfigModels", DeviceConfigModels },
-                    { "DeviceConfigModel", deviceitem.ConfigModel },
-                    { "Mode", "Update" }
-                };
+            //    DialogParameters keyValuePairs = new()
+            //    {
+            //        { "DeviceConfigModels", DeviceConfig },
+            //        { "DeviceConfigModel", deviceitem.ConfigModel },
+            //        { "Mode", "Update" }
+            //    };
 
-                _dialogService.ShowDialog("DeviceAddWindow", keyValuePairs, async result =>
-                {
-                    if (result.Result == ButtonResult.OK)
-                    {
-                        await LoadDeviceJson();
-                    }
-                });
+            //    _dialogService.ShowDialog("DeviceAddWindow", keyValuePairs, async result =>
+            //    {
+            //        if (result.Result == ButtonResult.OK)
+            //        {
+            //            await LoadDeviceJson();
+            //        }
+            //    });
 
-            });
+            //});
 
             DeleteCommand = new(async deviceitem => await DeleteDevice(deviceitem));
 
@@ -107,9 +113,9 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         public async Task LoadDeviceJson()
         {
             Devices.Clear();
-            DeviceConfigModels = await _deviceStorageService.LoadDeviceJson();
+            DeviceConfig = await _deviceStorageService.GetDeviceListAsync();
 
-            foreach (var configmodel in DeviceConfigModels)
+            foreach (var configmodel in DeviceConfig)
             {
                 Devices.Add(new DeviceItemViewModel(configmodel, _deviceComunicationService, _acquisitionService));
             }
@@ -119,14 +125,14 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         
         public async Task DeleteDevice(DeviceItemViewModel deviceitem)
         {
-            if (deviceitem.ConfigModel.IpAddress != null && _deviceComunicationService.IsConnected(deviceitem.ConfigModel.IpAddress))
-            {
-                MessageBox.Show("设备正在连接！请断开连接后重试");
-                return;
-            }
+            //if (deviceitem.ConfigModel.IpAddress != null && _deviceComunicationService.IsConnected(deviceitem.ConfigModel.IpAddress))
+            //{
+            //    MessageBox.Show("设备正在连接！请断开连接后重试");
+            //    return;
+            //}
             Devices.Remove(deviceitem);
-            DeviceConfigModels.Remove(deviceitem.ConfigModel);
-            await _deviceStorageService.SaveDeviceAsJsonAsync(DeviceConfigModels);
+            DeviceConfig.Remove(deviceitem.ConfigModel);
+            await _deviceStorageService.SaveDeviceListAsync(DeviceConfig);
 
         }
 

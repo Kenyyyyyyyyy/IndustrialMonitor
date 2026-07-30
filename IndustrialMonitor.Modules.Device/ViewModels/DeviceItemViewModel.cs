@@ -1,6 +1,7 @@
 ﻿using IndustrialMonitor.Communication.IServices;
 using IndustrialMonitor.Communication.Services;
 using IndustrialMonitor.Core.Models;
+using IndustrialMonitor.Core.Models.DeviceConfigModels;
 using IndustrialMonitor.DataAcquisition.IServices;
 using IndustrialMonitor.DataAcquisition.Services;
 using System;
@@ -15,7 +16,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 {
     public class DeviceItemViewModel: BindableBase
     {
-        public DeviceConfigModel ConfigModel { get; }
+        public DeviceConfig ConfigModel { get; }
         
 
         private DeviceConnectionResult _connectionResult;
@@ -31,7 +32,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
         private IDeviceCommunicationService DeviceCommunicationService { get; }
         private IAcquisitionService _acquisitionservice { get; }
 
-        public DeviceItemViewModel(DeviceConfigModel configModel, 
+        public DeviceItemViewModel(DeviceConfig configModel, 
                                    IDeviceCommunicationService deviceCommunicationService, 
                                    IAcquisitionService acquisitionService)
         {
@@ -39,30 +40,30 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
             DeviceCommunicationService = deviceCommunicationService;
             _acquisitionservice = acquisitionService;
 
-            _ = ConnectAsync();
+            //_ = ConnectAsync();
 
-            ConnectCommand = new(async () => await ConnectAsync());
-            DisconnectCommand = new(() => DisconnectAsync());
+            //ConnectCommand = new(async () => await ConnectAsync());
+            //DisconnectCommand = new(() => DisconnectAsync());
 
         }
 
-        public async Task ConnectAsync()
-        {
-            ConnectionResult = await DeviceCommunicationService.ConnectAsync(ConfigModel);
+    //    public async Task ConnectAsync()
+    //    {
+    //        ConnectionResult = await DeviceCommunicationService.ConnectAsync(ConfigModel);
 
-            if (ConnectionResult.IsConnected)
-            {
-                await _acquisitionservice.StartCollectAsync(ConfigModel.IpAddress, ConfigModel.Id);
-            }
-        }
+    //        if (ConnectionResult.IsConnected)
+    //        {
+    //            await _acquisitionservice.StartCollectAsync(ConfigModel.IpAddress, ConfigModel.Id);
+    //        }
+    //    }
 
-        public void DisconnectAsync()
-        {
-            if (ConnectionResult.IsConnected)
-            {
-                _acquisitionservice.StopCollectAsync(ConfigModel.IpAddress);
-            }
-            ConnectionResult = DeviceCommunicationService.DisconnectAsync(ConfigModel);
+    //    public void DisconnectAsync()
+    //    {
+    //        if (ConnectionResult.IsConnected)
+    //        {
+    //            _acquisitionservice.StopCollectAsync(ConfigModel.IpAddress);
+    //        }
+    //        ConnectionResult = DeviceCommunicationService.DisconnectAsync(ConfigModel);
+    //    }
         }
-    }
 }

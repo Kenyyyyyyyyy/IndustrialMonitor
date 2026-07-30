@@ -25,12 +25,9 @@
 
                 <Button Content="连接PLC" Command="{Binding PLCConnectCmd}"
                         Width="60" Height="20" HorizontalAlignment="Left" Margin="10">
-                    
+
                 </Button>
             </WrapPanel>
-            
-            
-            
         </Grid>
 
 
@@ -48,28 +45,23 @@
                 <DataTemplate>
                     <StackPanel>
                         <WrapPanel>
-                            <TextBlock Text="IpAddress: "/>
-                            <TextBlock Text="{Binding ConfigModel.IpAddress}" />
+                            <TextBlock Text="DeviceID: "/>
+                            <TextBlock Text="{Binding ConfigModel.DeviceId}" />
                         </WrapPanel>
+                        
                         <WrapPanel>
-                            <TextBlock Text="Port: "/>
-                            <TextBlock Text="{Binding ConfigModel.Port}"/>
+                            <TextBlock Text="Device: "/>
+                            <TextBlock Text="{Binding ConfigModel.DeviceName}"/>
                         </WrapPanel>
+                        
                         <WrapPanel>
-                            <TextBlock Text="SlaveId: "/>
-                            <TextBlock Text="{Binding ConfigModel.SlaveId}"/>
+                            <TextBlock Text="DeviceType: "/>
+                            <TextBlock Text="{Binding ConfigModel.DeviceType}"/>
                         </WrapPanel>
-                        <WrapPanel>
-                            <TextBlock Text="StartAddress: "/>
-                            <TextBlock Text="{Binding ConfigModel.StartAddress}"/>
-                        </WrapPanel>
-                        <WrapPanel>
-                            <TextBlock Text="NumberOfPoints: "/>
-                            <TextBlock Text="{Binding ConfigModel.NumberOfPoints}"/>
-                        </WrapPanel>
+                        
                         <WrapPanel>
                             <TextBlock Text="状态: "/>
-                            <TextBlock Text="{Binding ConnectionResult.Status}"/>
+                            <TextBlock Text="{Binding ConnectionResult.IsRunning}"/>
                         </WrapPanel>
 
                         <TextBlock Text="{Binding ConnectionResult.ErrorMessage}"/>

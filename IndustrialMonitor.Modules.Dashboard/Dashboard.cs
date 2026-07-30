@@ -6,7 +6,6 @@ using IndustrialMonitor.DataAcquisition.IServices;
 using IndustrialMonitor.DataAcquisition.Services;
 using IndustrialMonitor.Modules.Dashboard.ViewModels;
 using IndustrialMonitor.Modules.Dashboard.Views;
-using IndustrialMonitor.Modules.Device.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +31,7 @@ namespace IndustrialMonitor.Modules.Dashboard
 
             containerRegistry.RegisterSingleton<IDeviceCommunicationService,DeviceCommunicationService>();
             containerRegistry.RegisterSingleton<IDeviceStorageService, DeviceStorageService>();
+
             containerRegistry.RegisterSingleton<IGraphDataService,GraphDataService>();
             containerRegistry.RegisterSingleton<IGraphDataRepository,GraphDataRepository>();
         }

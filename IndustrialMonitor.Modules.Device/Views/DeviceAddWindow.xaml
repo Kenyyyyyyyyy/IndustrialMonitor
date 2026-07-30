@@ -4,56 +4,101 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:IndustrialMonitor.Modules.Device.Views"
+             xmlns:vm="clr-namespace:IndustrialMonitor.Modules.Device.DeviceViewModels"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="250">
     <Grid>
-        <StackPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
 
-            <WrapPanel Margin="5">
-                <TextBlock Text="设备种类" Width="100"/>
-                <ComboBox ItemsSource="{Binding DeviceTypes}" 
-                          SelectedItem="{Binding SelectedDeviceType}" Width="60"/>
-            </WrapPanel>
-            
-            <WrapPanel Margin="5">
-                <TextBlock Text="IpAddress" Width="100"></TextBlock>
-                <TextBox Width="100" 
-                         Text="{Binding DeviceConfig.IpAddress,
-                         UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </WrapPanel>
-            
-            <WrapPanel Margin="5">
-                <TextBlock Text="Port" Width="100"></TextBlock>
-                <TextBox Width="100" 
-                         Text="{Binding DeviceConfig.Port,
-                         UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </WrapPanel>
-            
-            <WrapPanel Margin="5">
-                <TextBlock Text="SlaveId" Width="100"></TextBlock>
-                <TextBox Width="100" 
-                         Text="{Binding DeviceConfig.SlaveId,
-                         UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </WrapPanel>
-            
-            <WrapPanel Margin="5">
-                <TextBlock Text="StartAddress" Width="100"></TextBlock>
-                <TextBox Width="100" 
-                         Text="{Binding DeviceConfig.StartAddress,
-                         UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </WrapPanel>
-            
-            <WrapPanel Margin="5">
-                <TextBlock Text="NumberOfPoints" Width="100"></TextBlock>
-                <TextBox Width="100" 
-                         Text="{Binding DeviceConfig.NumberOfPoints,
-                         UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </WrapPanel>
+        <WrapPanel Grid.Row="0" Margin="5">
+            <TextBlock Text="设备种类" Width="100"/>
+            <ComboBox ItemsSource="{Binding DeviceTypes}" 
+            SelectedItem="{Binding SelectedDeviceType }" SelectedIndex="-1" Width="100"/>
+        </WrapPanel>
 
-            <Button Content="{Binding ButtonConCent}" Command="{Binding ControlDeviceCmd}" 
-                    CommandParameter="{Binding ButtonConCent}"
-                    Width="100" HorizontalAlignment="Center" Margin="10">
-            </Button>
-        </StackPanel>
+        <ContentControl Grid.Row="1" Content="{Binding CurrentConfig}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type vm:ModbusTcpViewModel}">
+                    <StackPanel>
+
+                        <WrapPanel Margin="5">
+                            <TextBlock Text="DeviceName" Width="100"></TextBlock>
+                            <TextBox Width="100" 
+                            Text="{Binding ModbusTcpDeviceConfig.DeviceName}"></TextBox>
+                        </WrapPanel>
+
+                        <WrapPanel Margin="5">
+                            <TextBlock Text="DeviceType" Width="100"></TextBlock>
+                            <TextBox Width="100" 
+                            Text="{Binding ModbusTcpDeviceConfig.DeviceType}"/>
+                        </WrapPanel>
+
+                        <WrapPanel Margin="5">
+                            <TextBlock Text="IpAddress" Width="100"></TextBlock>
+                            <TextBox Width="100" 
+                            Text="{Binding ModbusTcpDeviceConfig.IpAddress}"/>
+                        </WrapPanel>
+
+                        <WrapPanel Margin="5">
+                            <TextBlock Text="Port" Width="100"></TextBlock>
+                            <TextBox Width="100" 
+                             Text="{Binding ModbusTcpDeviceConfig.Port}"/>
+                        </WrapPanel>
+
+                        <WrapPanel Margin="5">
+                            <TextBlock Text="SlaveId" Width="100"></TextBlock>
+                            <TextBox Width="100" 
+                             Text="{Binding ModbusTcpDeviceConfig.SlaveId}"/>
+                        </WrapPanel>
+
+                        <WrapPanel Margin="5">
+                            <TextBlock Text="StartAddress" Width="100"></TextBlock>
+                            <TextBox Width="100" 
+                             Text="{Binding ModbusTcpDeviceConfig.StartAddress}"/>
+                        </WrapPanel>
+
+                        <WrapPanel Margin="5">
+                            <TextBlock Text="NumberOfPoints" Width="100"></TextBlock>
+                            <TextBox Width="100" 
+                             Text="{Binding ModbusTcpDeviceConfig.NumberOfPoints}"/>
+                        </WrapPanel>
+
+                        <WrapPanel>
+                            <Button Content="添加" Command="{Binding AddDeviceCommand}" 
+                                     Width="80"/>
+                        </WrapPanel>
+                        
+                    </StackPanel>
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type vm:ModbusRtuViewModel}">
+                    <StackPanel>
+                        <WrapPanel>
+                            <TextBlock Text="ModbusRtuViewModel"/>
+                        </WrapPanel>
+
+                        <WrapPanel>
+                            <Button Content="添加" Width="80"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type vm:S7ViewModel}">
+                    <StackPanel>
+                        <WrapPanel>
+                            <TextBlock Text="S7ViewModel"/>
+                        </WrapPanel>
+
+                        <WrapPanel>
+                            <Button Content="添加" Width="80"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </DataTemplate>
+
+            </ContentControl.Resources>
+        </ContentControl>
     </Grid>
 </UserControl>

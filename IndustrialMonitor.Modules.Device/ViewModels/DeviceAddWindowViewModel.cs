@@ -1,5 +1,7 @@
-﻿using IndustrialMonitor.Core.Models;
-using IndustrialMonitor.Modules.Device.Tools;
+﻿using IndustrialMonitor.Communication.IServices;
+using IndustrialMonitor.Communication.Services;
+using IndustrialMonitor.Core.Models;
+using IndustrialMonitor.Modules.Device.DeviceViewModels;
 using Prism.Common;
 using System;
 using System.Collections.Generic;
@@ -15,71 +17,33 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 {
     public class DeviceAddWindowViewModel : BindableBase, IDialogAware
     {
+        private readonly IDeviceStorageService _deviceStorageService;
 
-        private string _title;
+        private string _title = "添加设备";
 
         public string Title
         {
-            get =>  _title; 
-            set =>  SetProperty(ref _title, value);
+            get => _title;
+            set => SetProperty(ref _title, value);
         }
 
-        private string _buttonConCent;
+        
 
-        public string ButtonConCent
-        {
-            get { return _buttonConCent; }
-            set { _buttonConCent = value; }
-        }
-
-
-        public string Mode { get; }
-
-        private readonly DeviceStorageService _deviceStorageService = new();
+        
         public DialogCloseListener RequestClose { get; }
 
         public DelegateCommand<string> ControlDeviceCmd { get; }
 
-        public DeviceConfigModel originalDeviceConfig { get; set; }
+        public DeviceConfigModel OriginalDeviceConfig { get; set; }
 
-        public DeviceAddWindowViewModel()
+        public DeviceAddWindowViewModel(IDeviceStorageService deviceStorageService)
         {
-            ControlDeviceCmd = new(async (buttoncontent) => 
-            {
-                if(buttoncontent == "添加")
-                {
-                    await AddDevice();
-                }
+            _deviceStorageService = deviceStorageService;
 
-                if (buttoncontent == "修改")
-                {
-                    await UpdateDevice();
-                }
-            });
-        }
-
-        public async Task AddDevice()
-        {
-            _deviceConfigList.Add(DeviceConfig);
-            await _deviceStorageService.SaveDeviceAsJsonAsync(_deviceConfigList);
-            RequestClose.Invoke(ButtonResult.OK);
-        }
-
-        public async Task UpdateDevice()
-        {
-            int index = _deviceConfigList.FindIndex(x => x.Id == originalDeviceConfig.Id);
-
-            if (index < 0)
-            {
-                MessageBox.Show("json的devicelist中找不到此device");
-                return;
-            }
-
-            _deviceConfigList[index] = DeviceConfig;
-            await _deviceStorageService.SaveDeviceAsJsonAsync(_deviceConfigList);
             
-            RequestClose.Invoke(ButtonResult.OK);
         }
+
+        
 
         #region IDialogAware
         public bool CanCloseDialog()
@@ -94,28 +58,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            _deviceConfigList = parameters.GetValue<List<DeviceConfigModel>>("DeviceConfigModels");
-
-            if (parameters.GetValue<string>("Mode") == "Add")
-            {
-                Title = "添加设备";
-                ButtonConCent = "添加";
-            }
-            if (parameters.GetValue<string>("Mode") == "Update")
-            {
-                Title = "修改设备";
-                ButtonConCent = "修改";
-                originalDeviceConfig = parameters.GetValue<DeviceConfigModel>("DeviceConfigModel");
-                DeviceConfig = new DeviceConfigModel
-                {
-                    Id = originalDeviceConfig.Id,
-                    IpAddress = originalDeviceConfig.IpAddress,
-                    Port = originalDeviceConfig.Port,
-                    SlaveId = originalDeviceConfig.SlaveId,
-                    StartAddress = originalDeviceConfig.StartAddress,
-                    NumberOfPoints = originalDeviceConfig.NumberOfPoints
-                };
-            }
+            
         }
 
         #endregion
@@ -137,6 +80,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
             set => SetProperty(ref _deviceConfig, value);
         }
 
+
         public enum DeviceType
         {
             ModbusTcp,
@@ -144,13 +88,35 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
             SiemensS7
         }
 
-        private DeviceType _selectedDeviceType;
+        private DeviceType? _selectedDeviceType;
 
-        public DeviceType SelectedDeviceType
+        public DeviceType? SelectedDeviceType
         {
             get => _selectedDeviceType;
-            set => SetProperty(ref _selectedDeviceType, value);
+            set 
+            {
+                if (SetProperty(ref _selectedDeviceType, value))
+                {
+                    CurrentConfig = value switch
+                    {
+                        DeviceType.ModbusTcp => new ModbusTcpViewModel(_deviceStorageService),
+                        DeviceType.ModbusRtu => new ModbusRtuViewModel(),
+                        DeviceType.SiemensS7 => new S7ViewModel(),
+                        _ => throw new ArgumentOutOfRangeException()
+                    };
+                    
+                }
+            }
         }
+
+        private object _currentConfig;
+
+        public object CurrentConfig
+        {
+            get => _currentConfig;
+            set => SetProperty(ref _currentConfig, value);
+        }
+
 
         public ObservableCollection<DeviceType> DeviceTypes { get; } = new(Enum.GetValues<DeviceType>());
 

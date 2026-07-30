@@ -1,7 +1,7 @@
-﻿using IndustrialMonitor.Core.GraphModels;
+﻿using IndustrialMonitor.Communication.IServices;
+using IndustrialMonitor.Core.GraphModels;
 using IndustrialMonitor.DataAcquisition.IServices;
 using IndustrialMonitor.DataAcquisition.Services;
-using IndustrialMonitor.Modules.Device.Tools;
 using LiveChartsCore;
 using LiveChartsCore.Measure;
 using LiveChartsCore.SkiaSharpView;

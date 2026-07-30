@@ -4,7 +4,6 @@ using IndustrialMonitor.Core.Models;
 using IndustrialMonitor.DataAcquisition.IServices;
 using IndustrialMonitor.Modules.Dashboard.Tools;
 using IndustrialMonitor.Modules.Device;
-using IndustrialMonitor.Modules.Device.Tools;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
