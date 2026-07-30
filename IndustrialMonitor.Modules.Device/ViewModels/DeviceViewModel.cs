@@ -71,7 +71,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
                 });
             });
 
-            UpdataCommand = new((deviceitem) => 
+            UpdataCommand = new(deviceitem => 
             {
                 if (deviceitem.ConfigModel.IpAddress != null && _deviceComunicationService.IsConnected(deviceitem.ConfigModel.IpAddress))
                 {
@@ -96,7 +96,7 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
 
             });
 
-            DeleteCommand = new(async (deviceitem) => await DeleteDevice(deviceitem));
+            DeleteCommand = new(async deviceitem => await DeleteDevice(deviceitem));
 
             PLCConnectCmd = new(() => {
                 s7CommunicationService.S7Connect();

@@ -8,6 +8,13 @@
              d:DesignHeight="300" d:DesignWidth="250">
     <Grid>
         <StackPanel>
+
+            <WrapPanel Margin="5">
+                <TextBlock Text="设备种类" Width="100"/>
+                <ComboBox ItemsSource="{Binding DeviceTypes}" 
+                          SelectedItem="{Binding SelectedDeviceType}" Width="60"/>
+            </WrapPanel>
+            
             <WrapPanel Margin="5">
                 <TextBlock Text="IpAddress" Width="100"></TextBlock>
                 <TextBox Width="100" 
@@ -45,7 +52,8 @@
 
             <Button Content="{Binding ButtonConCent}" Command="{Binding ControlDeviceCmd}" 
                     CommandParameter="{Binding ButtonConCent}"
-                    Width="100" HorizontalAlignment="Center" Margin="10"></Button>
+                    Width="100" HorizontalAlignment="Center" Margin="10">
+            </Button>
         </StackPanel>
     </Grid>
 </UserControl>

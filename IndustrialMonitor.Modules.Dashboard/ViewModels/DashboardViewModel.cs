@@ -116,7 +116,7 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             set => SetProperty(ref _yieldRate, value);
         }
 
-        private int _alarmCount;
+        private int _alarmCount = 23; 
 
         public int AlarmCount
         {
@@ -124,7 +124,7 @@ namespace IndustrialMonitor.Modules.Dashboard.ViewModels
             set => SetProperty(ref _alarmCount, value);
         }
 
-        private int _deviceStatus;
+        private int _deviceStatus = 1;
 
         public int DeviceStatus
         {

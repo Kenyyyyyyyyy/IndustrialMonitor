@@ -12,7 +12,7 @@ namespace IndustrialMonitor.Alarm.Models
         [Key]
         public int id { get; set; }
 
-        public Guid DeviceId { get; set; }
+        public Guid? DeviceId { get; set; }
 
         public string? IpAddress { get; set; }
 

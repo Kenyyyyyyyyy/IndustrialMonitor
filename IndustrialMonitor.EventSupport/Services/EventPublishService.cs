@@ -43,5 +43,15 @@ namespace IndustrialMonitor.EventSupport.Services
                 });
         }
 
+        public void PublishCRUDErrorInfo(Exception exception)
+        {
+            _eventAggregator
+                .GetEvent<CommunicationFailedEvent>()
+                .Publish(new ErrorInfo
+                {
+                    exception = exception
+                });
+        }
+
     }
 }

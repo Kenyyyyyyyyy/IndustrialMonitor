@@ -11,5 +11,7 @@ namespace IndustrialMonitor.EventSupport.IServices
         public void PublishErrorInfo(Guid deviceid, Exception exception);
 
         public void PublishCommunicationErrorInfo(Guid deviceid, string ipAddress, byte slaveId, ushort port, Exception exception);
+
+        public void PublishCRUDErrorInfo(Exception exception);
     }
 }

@@ -8,7 +8,7 @@ namespace IndustrialMonitor.Alarm.Models
 {
     public class ErrorInfo
     {
-        public Guid deviceid;
+        public Guid? deviceid;
 
         public required Exception exception;
         public string? IpAddress { get; set; }

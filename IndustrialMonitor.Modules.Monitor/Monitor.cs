@@ -1,6 +1,8 @@
 ﻿using IndustrialMonitor.Alarm.IRepository;
 using IndustrialMonitor.Alarm.Models;
 using IndustrialMonitor.Alarm.Repository;
+using IndustrialMonitor.DataAcquisition.IServices;
+using IndustrialMonitor.DataAcquisition.Services;
 using IndustrialMonitor.Modules.Monitor.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -21,7 +23,7 @@ namespace IndustrialMonitor.Modules.Monitor
         {
             containerRegistry.RegisterForNavigation<IndustrialMonitor.Modules.Monitor.MonitorView, MonitorViewModel>();
 
-            
+            containerRegistry.RegisterSingleton<IAlarmDataService, AlarmDataService>();
             
         }
     }

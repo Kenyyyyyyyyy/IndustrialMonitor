@@ -136,5 +136,24 @@ namespace IndustrialMonitor.Modules.Device.ViewModels
             get => _deviceConfig;
             set => SetProperty(ref _deviceConfig, value);
         }
+
+        public enum DeviceType
+        {
+            ModbusTcp,
+            ModbusRtu,
+            SiemensS7
+        }
+
+        private DeviceType _selectedDeviceType;
+
+        public DeviceType SelectedDeviceType
+        {
+            get => _selectedDeviceType;
+            set => SetProperty(ref _selectedDeviceType, value);
+        }
+
+        public ObservableCollection<DeviceType> DeviceTypes { get; } = new(Enum.GetValues<DeviceType>());
+
+
     }
 }

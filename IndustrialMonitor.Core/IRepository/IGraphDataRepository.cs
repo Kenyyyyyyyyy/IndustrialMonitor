@@ -1,4 +1,5 @@
-﻿using IndustrialMonitor.Core.GraphModels;
+﻿using IndustrialMonitor.Alarm.Models;
+using IndustrialMonitor.Core.GraphModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,7 @@ namespace IndustrialMonitor.Core.IRepository
     public interface IGraphDataRepository
     {
         public Task<List<GraphDataModel>> GetDataByDeviceIdAndInterval(GraphRequestModel graphRequestModel);
+
+        
     }
 }

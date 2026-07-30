@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IndustrialMonitor.Alarm.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -10,5 +11,7 @@ namespace IndustrialMonitor.DataAcquisition.IServices
     public interface IAlarmDataService
     {
         
+        public Task<List<AlarmRecord>> GetAlarmRecords(byte pageIndex, byte pageSize);
+
     }
 }

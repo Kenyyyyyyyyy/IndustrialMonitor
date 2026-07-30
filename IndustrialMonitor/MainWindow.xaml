@@ -11,7 +11,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
-        </Grid.ColumnDefinitions>   
+        </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Column="0">
             <Button Content="首页看板" Margin="10" 
@@ -20,17 +20,17 @@
             <Button Content="设备通信" Margin="10"
                     Command="{Binding NavigateCommand}" 
                     CommandParameter="DeviceView"></Button>
-            <Button Content="实时监控" Margin="10" 
+            <Button Content="实时监控" Margin="10" ></Button>
+            <Button Content="报警管理" Margin="10"
                     Command="{Binding NavigateCommand}" 
                     CommandParameter="MonitorView"></Button>
-            <Button Content="报警管理" Margin="10"></Button>
             <Button Content="历史数据" Margin="10"></Button>
             <Button Content="系统设置" Margin="10"></Button>
         </StackPanel>
 
         <ContentControl Grid.Column="1" 
                         prism:RegionManager.RegionName="ContentRegion">
-            
+
         </ContentControl>
     </Grid>
 </Window>

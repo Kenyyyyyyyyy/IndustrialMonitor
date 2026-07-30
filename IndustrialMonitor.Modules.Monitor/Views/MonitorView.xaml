@@ -10,6 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
@@ -28,24 +29,13 @@
 
         </Grid>
 
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding AlarmList}">
+        <DataGrid Grid.Row="1" ItemsSource="{Binding AlarmRecordList}">
+        </DataGrid>
 
-            <ItemsControl.ItemTemplate>
-                <ItemContainerTemplate>
-                    <DataGrid></DataGrid>
-                </ItemContainerTemplate>
+        <Button Grid.Row="2" Width="60" HorizontalAlignment="Left" Content="上一页" Margin="20,0"
+                Command="{Binding ChangePageCommand}" CommandParameter="up"/>
+        <Button Grid.Row="2" Width="60" HorizontalAlignment="Right" Content="下一页" Margin="20,0"
+                Command="{Binding ChangePageCommand}" CommandParameter="down"/>
 
-            </ItemsControl.ItemTemplate>
-
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel>
-                        
-                    </WrapPanel>
-                </ItemsPanelTemplate>
-
-            </ItemsControl.ItemsPanel>
-
-        </ItemsControl>
     </Grid>
 </UserControl>

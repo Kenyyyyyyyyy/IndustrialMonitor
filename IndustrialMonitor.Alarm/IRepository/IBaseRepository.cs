@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IndustrialMonitor.Alarm.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,5 +10,7 @@ namespace IndustrialMonitor.Alarm.IRepository
     public interface IBaseRepository <T> where T : class
     {
         public Task RecordAlarm(T entity);
+
+        public Task<List<AlarmRecord>> GetAlarmRecordsAsync(byte pageIndex, byte pageSize);
     }
 }
